@@ -47,7 +47,7 @@ export default function Leaderboard() {
       <div className="page-hero">
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: 12 }}>🏆</div>
+            <div style={{ fontSize: '3rem', marginBottom: 12}}>🏆</div>
             <h1 className="page-hero-title">Leaderboard</h1>
             <p className="page-hero-desc">Compete with learners worldwide and climb the ranks!</p>
           </div>

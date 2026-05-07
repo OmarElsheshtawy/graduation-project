@@ -93,7 +93,6 @@ export default function Home() {
         <div className="container">
           <div className="hero-grid">
             <div className="animate-fade-up">
-              <div className="hero-eyebrow">⭐ Rated #1 English Learning Platform</div>
               <h1 className="hero-title">
                 Master English with <span className="highlight">Confidence</span> & Community
               </h1>
@@ -148,18 +147,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trusted By ── */}
-      <section className="section-sm" style={{ background: 'var(--gray-50)', borderTop: '1px solid var(--gray-100)', borderBottom: '1px solid var(--gray-100)' }}>
-        <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 40, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gray-400)', letterSpacing: 1, textTransform: 'uppercase' }}>Trusted by learners from</span>
-            {['🇪🇬 Egypt','🇧🇷 Brazil','🇯🇵 Japan','🇲🇽 Mexico','🇮🇳 India','🇩🇪 Germany','🇳🇬 Nigeria'].map(c => (
-              <span key={c} style={{ fontSize: '0.875rem', color: 'var(--gray-500)', fontWeight: 500 }}>{c}</span>
-            ))}
           </div>
         </div>
       </section>
@@ -224,7 +211,7 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginTop: 36 }}>
             {/* ✅ Goes to CoursesHub */}
             <button onClick={() => navigate('/courses')} className="btn btn-secondary btn-lg">
-              View All 6 Courses →
+              View All 9 Courses →
             </button>
           </div>
         </div>
@@ -258,7 +245,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Pricing ── */}
+      {/* ── Pricing ──
       <section className="section section-alt">
         <div className="container">
           <div className="section-header">
@@ -287,7 +274,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── Newsletter ── */}
       <section className="section" style={{ background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)', color: 'white' }}>
