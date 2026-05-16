@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { useTheme } from './ThemeContext'
 
 const BADGES = [
   { id: 1, icon: '🔥', name: 'On Fire', desc: '7-day streak' },
@@ -18,29 +19,33 @@ export default function Leaderboard() {
 
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
-  // Mock leaderboard data (in a real app this would come from the API)
   useEffect(() => {
     setLoading(true)
-    setTimeout(() => {
-      const mock = [
-        { rank: 1, name: 'Ahmed Hassan',     country: '🇪🇬', xp: 4850, streak: 32, courses: 5, avatar: 'A' },
-        { rank: 2, name: 'Sarah Martinez',   country: '🇲🇽', xp: 4200, streak: 28, courses: 4, avatar: 'S' },
-        { rank: 3, name: 'Yuki Tanaka',      country: '🇯🇵', xp: 3900, streak: 21, courses: 6, avatar: 'Y' },
-        { rank: 4, name: 'Maria Silva',      country: '🇧🇷', xp: 3400, streak: 15, courses: 3, avatar: 'M' },
-        { rank: 5, name: 'Lena Müller',      country: '🇩🇪', xp: 3100, streak: 12, courses: 4, avatar: 'L' },
-        { rank: 6, name: 'Carlos Ruiz',      country: '🇪🇸', xp: 2850, streak: 9,  courses: 3, avatar: 'C' },
-        { rank: 7, name: 'Emma Thompson',    country: '🇬🇧', xp: 2600, streak: 7,  courses: 2, avatar: 'E' },
-        { rank: 8, name: 'Raj Patel',        country: '🇮🇳', xp: 2300, streak: 5,  courses: 3, avatar: 'R' },
-        { rank: 9, name: 'Sofia Rossi',      country: '🇮🇹', xp: 2100, streak: 4,  courses: 2, avatar: 'S' },
-        { rank: 10, name: 'Liu Wei',         country: '🇨🇳', xp: 1900, streak: 3,  courses: 2, avatar: 'L' },
-      ]
-      setLeaders(mock)
-      if (user) setMyRank({ rank: 14, xp: 1240, streak: 5 })
-      setLoading(false)
-    }, 600)
+    api.get('/analytics/leaderboard')
+      .then(({ data }) => {
+        const ranked = data.leaderboard.map((u, i) => ({
+          rank:    i + 1,
+          name:    u.name,
+          avatar:  u.name?.charAt(0).toUpperCase() || '?',
+          xp:      u.xp,
+          courses: u.enrolled_courses,
+          streak:  0, // not stored in DB yet
+        }))
+        setLeaders(ranked)
+        if (user) {
+          const me = ranked.find(r => r.name === user.name)
+          if (me) setMyRank({ rank: me.rank, xp: me.xp, streak: me.streak })
+        }
+      })
+      .catch(() => setLeaders([]))
+      .finally(() => setLoading(false))
   }, [period])
 
+  const { dark } = useTheme()
   const rankColors = { 1: { bg: '#FEF3C7', color: '#B45309', medal: '🥇' }, 2: { bg: '#F1F5F9', color: '#475569', medal: '🥈' }, 3: { bg: '#FEE2E2', color: '#B91C1C', medal: '🥉' } }
+  const podiumBg = dark
+    ? 'linear-gradient(135deg, rgba(37,99,235,0.15), #1E3A5F)'
+    : 'linear-gradient(135deg, var(--primary-light), #EEF2FF)'
 
   return (
     <div>
@@ -56,7 +61,7 @@ export default function Leaderboard() {
 
       <div className="section">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 32, alignItems: 'start' }}>
+          <div className="leaderboard-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 32, alignItems: 'start' }}>
 
             {/* Main Leaderboard */}
             <div>
@@ -73,7 +78,7 @@ export default function Leaderboard() {
 
               {/* Top 3 Podium */}
               {!loading && leaders.length >= 3 && (
-                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 12, marginBottom: 32, background: 'linear-gradient(135deg, var(--primary-light), #EEF2FF)', borderRadius: 16, padding: '32px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 12, marginBottom: 32, background: podiumBg, borderRadius: 16, padding: '32px 24px' }}>
                   {[leaders[1], leaders[0], leaders[2]].map((l, i) => {
                     const heights = ['100px', '130px', '90px']
                     const ranks = [2, 1, 3]
@@ -107,7 +112,7 @@ export default function Leaderboard() {
                     const isMe = user?.name === leader.name
                     const rc = rankColors[leader.rank]
                     return (
-                      <div key={leader.rank} className="leaderboard-item" style={{ background: isMe ? 'var(--primary-light)' : 'white', border: isMe ? '2px solid var(--primary)' : undefined }}>
+                      <div key={leader.rank} className="leaderboard-item" style={{ background: isMe ? 'var(--primary-light)' : undefined, border: isMe ? '2px solid var(--primary)' : undefined }}>
                         <div className={`leaderboard-rank ${leader.rank <= 3 ? `rank-${leader.rank}` : 'rank-other'}`}>
                           {leader.rank <= 3 ? rc.medal : `#${leader.rank}`}
                         </div>
@@ -116,7 +121,7 @@ export default function Leaderboard() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-900)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {leader.name} {leader.country}
+                            {leader.name}
                             {isMe && <span className="badge badge-primary" style={{ fontSize: '0.7rem' }}>You</span>}
                           </div>
                           <div style={{ fontSize: '0.78rem', color: 'var(--gray-400)', display: 'flex', gap: 12, marginTop: 2 }}>

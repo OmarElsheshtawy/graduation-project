@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import DashboardLayout from './components/DashboardLayout'
 import { AuthProvider } from './auth/AuthContext'
+import { ThemeProvider } from './pages/ThemeContext'
 
 // Auth
 import Auth           from './pages/Auth'
@@ -22,8 +23,9 @@ import Profile        from './pages/Profile'
 import Leaderboard    from './pages/Leaderboard'
 import Gamification   from './pages/Gamification'
 import Certificates   from './pages/Certificates'
-import Chat           from './pages/Chat'
 import QuizPlayer     from './pages/QuizPlayer'
+import PlacementQuiz  from './pages/PlacementQuiz'
+import CourseQuiz     from './pages/CourseQuiz'
 import Bookmarks      from './pages/Bookmarks'
 import Analytics      from './pages/Analytics'
 import Pricing        from './pages/Pricing'
@@ -40,11 +42,13 @@ import InstructorDashboard from './pages/InstructorDashboard'
 export default function App() {
   return (
     <Router>
+      <ThemeProvider>
       <AuthProvider>
       <Routes>
 
         {/* ── Auth (no layout) ── */}
-        <Route path="/"                  element={<Auth />} />
+        <Route path="/login"             element={<Login />} />
+        <Route path="/register"          element={<Register />} />
         <Route path="/forgot-password"   element={<ForgotPassword />} />
         <Route path="/reset-password"    element={<ResetPassword />} />
         <Route path="/payment/success"   element={<PaymentSuccess />} />
@@ -53,8 +57,13 @@ export default function App() {
         <Route path="/learn/:courseId"             element={<CourseMap />} />
         <Route path="/learn/:courseId/:lessonId"   element={<LessonPlayer />} />
 
+        {/* ── Quiz routes (immersive — no navbar/footer) ── */}
+        <Route path="/placement-quiz"              element={<PlacementQuiz />} />
+        <Route path="/course-quiz/:courseId"       element={<CourseQuiz />} />
+
         {/* ── Main layout routes ── */}
         <Route element={<Layout />}>
+          <Route path="/"              element={<Home />} />
           <Route path="/home"          element={<Home />} />
           <Route path="/about"         element={<About />} />
           <Route path="/courses"       element={<CoursesHub />} />
@@ -62,13 +71,10 @@ export default function App() {
           <Route path="/community"     element={<Community />} />
           <Route path="/forums"        element={<Forums />} />
           <Route path="/contact"       element={<Contact />} />
-          <Route path="/login"         element={<Login />} />
-          <Route path="/register"      element={<Register />} />
           <Route path="/profile"       element={<Profile />} />
           <Route path="/leaderboard"   element={<Leaderboard />} />
           <Route path="/gamification"  element={<Gamification />} />
           <Route path="/certificates"  element={<Certificates />} />
-          <Route path="/chat"          element={<Chat />} />
           <Route path="/quiz"          element={<QuizPlayer />} />
           <Route path="/quiz/:courseId" element={<QuizPlayer />} />
           <Route path="/bookmarks"     element={<Bookmarks />} />
@@ -92,6 +98,7 @@ export default function App() {
 
       </Routes>
       </AuthProvider>
+      </ThemeProvider>
     </Router>
   )
 }

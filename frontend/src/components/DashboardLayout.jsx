@@ -10,7 +10,6 @@ const STUDENT_LINKS = [
   { to: '/student-dashboard/progress',   icon: '📈', label: 'Progress' },
   { to: '/leaderboard',                   icon: '🏆', label: 'Leaderboard' },
   { to: '/certificates',                  icon: '🎓', label: 'Certificates' },
-  { to: '/chat',                          icon: '💬', label: 'Messages' },
   { to: '/quiz',                          icon: '🎯', label: 'Practice Quiz' },
 ]
 
@@ -20,7 +19,6 @@ const INSTRUCTOR_LINKS = [
   { to: '/instructor-dashboard/students',        icon: '👥', label: 'Students' },
   { to: '/courses',                               icon: '🎮', label: 'Browse Courses' },
   { to: '/leaderboard',                           icon: '🏆', label: 'Leaderboard' },
-  { to: '/chat',                                  icon: '💬', label: 'Messages' },
 ]
 
 export default function DashboardLayout({ role }) {
@@ -45,7 +43,7 @@ export default function DashboardLayout({ role }) {
 
   const isActive = (to) =>
     location.pathname === to ||
-    (to !== '/courses' && to !== '/leaderboard' && to !== '/chat' && to !== '/quiz' && to !== '/certificates' && location.pathname.startsWith(to + '/'))
+    (to !== '/courses' && to !== '/leaderboard' && to !== '/quiz' && to !== '/certificates' && location.pathname.startsWith(to + '/'))
 
   return (
     <div className="dashboard-wrap">
@@ -135,7 +133,16 @@ export default function DashboardLayout({ role }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {/* Toggle sidebar */}
             <button
-              onClick={() => { setCollapsed(c => !c); setMobileOpen(m => !m) }}
+              onClick={() => {
+                if (window.innerWidth <= 768) {
+                  // On mobile: slide the full sidebar in/out, never collapse to icons
+                  setMobileOpen(m => !m)
+                  setCollapsed(false)
+                } else {
+                  // On desktop: toggle icon-only collapsed mode
+                  setCollapsed(c => !c)
+                }
+              }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 7, borderRadius: 8, color: 'var(--gray-500)', display: 'flex', alignItems: 'center' }}>
               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <line x1="3" y1="6"  x2="21" y2="6"/>
@@ -157,16 +164,8 @@ export default function DashboardLayout({ role }) {
               </Link>
             )}
 
-            {/* Messages */}
-            <Link to="/chat"
-              style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', padding: 7, borderRadius: 8, color: 'var(--gray-500)', display: 'flex' }}>
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, background: 'var(--danger)', borderRadius: '50%', border: '2px solid white' }} />
-            </Link>
 
-            <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-600)' }}>
+            <span className="topbar-greeting" style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-600)' }}>
               Hi, {authUser?.name?.split(' ')[0]}! 👋
             </span>
 

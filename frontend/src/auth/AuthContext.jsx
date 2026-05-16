@@ -14,7 +14,16 @@ function readStoredUser() {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(readStoredUser)
+  // Only restore a session if the user explicitly chose "Remember me".
+  // Without it, clear any leftover token/user so the app always starts fresh.
+  const [user, setUser] = useState(() => {
+    if (!localStorage.getItem('rememberMe')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      return null
+    }
+    return readStoredUser()
+  })
   const [loading, setLoading] = useState(!!localStorage.getItem('token'))
 
   const refreshUser = useCallback(async () => {
@@ -47,6 +56,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(() => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+    localStorage.removeItem('rememberMe')
     setUser(null)
     setLoading(false)
   }, [])

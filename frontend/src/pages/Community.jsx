@@ -3,26 +3,26 @@ import '../App.css'
 function Community() {
   const testimonials = [
     {
-      name: 'Sarah Martinez',
-      country: 'Mexico',
+      name: 'Omar Hassan',
+      country: 'Egypt',
       text: 'LinguaBridge has transformed my English skills. The community is incredibly supportive and the teachers are amazing!',
-      rating: 5
+      rating: 4
     },
     {
-      name: 'Ahmed Hassan',
+      name: 'Mohanad Hantera',
       country: 'Egypt',
       text: 'I passed my IELTS exam thanks to the comprehensive preparation course. Highly recommended!',
       rating: 5
     },
     {
-      name: 'Yuki Tanaka',
-      country: 'Japan',
+      name: 'Jimmy',
+      country: 'Egypt',
       text: 'The conversational practice sessions helped me gain confidence in speaking English at work.',
-      rating: 5
+      rating: 4
     },
     {
-      name: 'Maria Silva',
-      country: 'Brazil',
+      name: 'Moataz Eltokhy',
+      country: 'Egypt',
       text: 'Best investment I made for my career. The business English course opened many opportunities.',
       rating: 5
     }

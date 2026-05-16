@@ -124,4 +124,27 @@ router.get('/instructor', protect, authorize('instructor','admin'), async (req, 
   } catch (err) { next(err); }
 });
 
+// ── GET /api/analytics/leaderboard ───────────────────────────────────────────
+router.get('/leaderboard', protect, async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        u.id,
+        u.name,
+        u.avatar_url,
+        COUNT(DISTINCT e.course_id)::int                        AS enrolled_courses,
+        COALESCE(AVG(p.percent_complete), 0)::int               AS avg_progress,
+        COALESCE(SUM(p.percent_complete * 10), 0)::int          AS xp
+      FROM users u
+      LEFT JOIN enrollments e ON e.student_id = u.id
+      LEFT JOIN progress    p ON p.student_id = u.id AND p.course_id = e.course_id
+      WHERE u.role = 'student'
+      GROUP BY u.id
+      ORDER BY xp DESC, avg_progress DESC
+      LIMIT 20
+    `);
+    res.json({ leaderboard: rows });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

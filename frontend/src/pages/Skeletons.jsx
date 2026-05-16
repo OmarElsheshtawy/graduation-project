@@ -2,7 +2,7 @@
 // Usage: <SkeletonCard /> <SkeletonText lines={3} /> <SkeletonDashboard />
 
 const pulse = {
-  background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)',
+  background: 'linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%)',
   backgroundSize: '200% 100%',
   animation: 'skeletonPulse 1.5s ease-in-out infinite',
   borderRadius: 8,
@@ -26,7 +26,7 @@ export function SkeletonText({ lines = 3, lastShort = true }) {
 
 export function SkeletonCard() {
   return (
-    <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid #F3F4F6' }}>
+    <div style={{ background: 'var(--white)', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--gray-100)' }}>
       <SkeletonBox h={180} radius={0} />
       <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -58,7 +58,7 @@ export function SkeletonDashboard() {
       {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
         {[...Array(4)].map((_, i) => (
-          <div key={i} style={{ background: 'white', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div key={i} style={{ background: 'var(--white)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
             <SkeletonBox w={40} h={40} radius={10} />
             <SkeletonBox h={28} w="60%" />
             <SkeletonBox h={12} w="80%" />
@@ -66,10 +66,10 @@ export function SkeletonDashboard() {
         ))}
       </div>
       {/* Content area */}
-      <div style={{ background: 'white', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: 'var(--white)', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <SkeletonBox h={22} w="30%" />
         {[...Array(3)].map((_, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid #F9FAFB' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid var(--gray-50)' }}>
             <SkeletonBox w={48} h={48} radius={12} />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
               <SkeletonBox h={14} w="70%" />
@@ -90,7 +90,7 @@ export function SkeletonLesson() {
       <SkeletonBox h={28} w="70%" />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {[...Array(6)].map((_, i) => (
-          <div key={i} style={{ background: 'white', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div key={i} style={{ background: 'var(--white)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <SkeletonBox h={18} w="60%" />
             <SkeletonBox h={12} w="40%" />
             <SkeletonBox h={12} w="90%" />
@@ -105,7 +105,7 @@ export function SkeletonLesson() {
 export function SkeletonProfile() {
   return (
     <div style={{ padding: '40px 24px', maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ background: 'white', borderRadius: 16, padding: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
+      <div style={{ background: 'var(--white)', borderRadius: 16, padding: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
         <SkeletonBox w={80} h={80} radius="50%" />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <SkeletonBox h={22} w="40%" />
@@ -113,7 +113,7 @@ export function SkeletonProfile() {
           <SkeletonBox h={20} w={80} radius={20} />
         </div>
       </div>
-      <div style={{ background: 'white', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ background: 'var(--white)', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
         <SkeletonBox h={20} w="25%" />
         {[...Array(3)].map((_, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

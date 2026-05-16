@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import api from '../services/api'
 import '../App.css'
+import { useTheme } from './ThemeContext'
 
 function Contact() {
+  const { dark } = useTheme()
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -49,22 +51,22 @@ function Contact() {
                   <div className="contact-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4A90E2" strokeWidth="2"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"/><polyline points="22,6 12,13 2,6"/></svg>
                   </div>
-                  <div><h3>Email</h3><p>info@linguabridge.com</p></div>
+                  <div><h3>Email</h3><p>linguabridge@gmail.com</p></div>
                 </div>
               </div>
             </div>
             <div className="contact-form-container">
               <h2>Send us a Message</h2>
               {success ? (
-                <div style={{ background: '#D1FAE5', border: '1px solid #A7F3D0', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
+                <div style={{ background: dark ? 'rgba(16,185,129,0.12)' : '#D1FAE5', border: `1px solid ${dark ? 'rgba(16,185,129,0.3)' : '#A7F3D0'}`, borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-                  <h3 style={{ color: '#065F46', marginBottom: '0.5rem' }}>Message Sent!</h3>
-                  <p style={{ color: '#047857' }}>We'll get back to you within 24 hours.</p>
+                  <h3 style={{ color: dark ? '#6EE7B7' : '#065F46', marginBottom: '0.5rem' }}>Message Sent!</h3>
+                  <p style={{ color: dark ? '#34D399' : '#047857' }}>We'll get back to you within 24 hours.</p>
                   <button onClick={() => setSuccess(false)} className="btn-primary" style={{ marginTop: '1.5rem' }}>Send Another</button>
                 </div>
               ) : (
                 <>
-                  {error && <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
+                  {error && <div style={{ background: dark ? 'rgba(239,68,68,0.12)' : '#FEE2E2', color: dark ? '#FCA5A5' : '#DC2626', border: `1px solid ${dark ? 'rgba(239,68,68,0.3)' : 'transparent'}`, padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem' }}>{error}</div>}
                   <form className="contact-form" onSubmit={handleSubmit}>
                     <div className="form-group"><label>Name</label><input type="text" name="name" value={formData.name} onChange={handleChange} required /></div>
                     <div className="form-group"><label>Email</label><input type="email" name="email" value={formData.email} onChange={handleChange} required /></div>

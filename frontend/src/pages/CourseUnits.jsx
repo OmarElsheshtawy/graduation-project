@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { COURSE_CATALOG, COURSE_UNITS } from '../data/courseContent'
+import { useTheme } from './ThemeContext'
 
 export default function CourseUnits() {
   const { courseId } = useParams()
   const navigate     = useNavigate()
   const [progress, setProgress] = useState({})
+  const { dark }  = useTheme()
+  const bgAlt     = dark ? '#1F2937' : '#F8FAFC'
+  const cardBg    = dark ? '#1F2937' : 'white'
+  const border    = dark ? '#374151' : '#E5E7EB'
+  const text      = dark ? '#F9FAFB' : '#1F2937'
+  const textMuted = dark ? '#9CA3AF' : '#6B7280'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const trackBg   = dark ? '#374151' : '#F3F4F6'
 
   const course = COURSE_CATALOG.find(c => c.id === courseId)
   const units  = COURSE_UNITS[courseId] || []
@@ -15,7 +24,7 @@ export default function CourseUnits() {
     if (saved) setProgress(JSON.parse(saved))
   }, [courseId])
 
-  if (!course) return <div style={{ padding: 40, textAlign: 'center' }}>Course not found.</div>
+  if (!course) return <div style={{ padding: 40, textAlign: 'center', color: text }}>Course not found.</div>
 
   const isLessonDone  = (lessonId) => !!progress[lessonId]
   const isUnitDone    = (unit) => unit.lessons.every(l => isLessonDone(l.id))
@@ -26,7 +35,6 @@ export default function CourseUnits() {
   const getLessonStatus = (lesson, unitIndex) => {
     if (isLessonDone(lesson.id)) return 'done'
     if (isUnitLocked(unitIndex)) return 'locked'
-    // First not-done lesson in unlocked unit
     const unit = units[unitIndex]
     const firstIncomplete = unit.lessons.find(l => !isLessonDone(l.id))
     return firstIncomplete?.id === lesson.id ? 'current' : 'available'
@@ -39,7 +47,7 @@ export default function CourseUnits() {
   const typeIcons = { grammar: '📝', vocabulary: '📚', reading: '📖', listening: '🎧', speaking: '🗣️', writing: '✍️' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+    <div style={{ minHeight: '100vh', background: bgAlt }}>
       {/* Header */}
       <div style={{ background: `linear-gradient(135deg, ${course.color} 0%, ${course.color}DD 100%)`, color: 'white', padding: '32px 0 40px' }}>
         <div className="container">
@@ -90,24 +98,24 @@ export default function CourseUnits() {
               {/* Unit Header */}
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, padding: '14px 20px',
-                background: locked ? '#F3F4F6' : unitDone ? `${course.bgLight}` : 'white',
-                borderRadius: 14, border: `1px solid ${locked ? '#E5E7EB' : unitDone ? course.color + '44' : '#E5E7EB'}`,
+                background: locked ? trackBg : unitDone ? (dark ? `${course.color}22` : `${course.bgLight}`) : cardBg,
+                borderRadius: 14, border: `1px solid ${locked ? border : unitDone ? course.color + '44' : border}`,
                 opacity: locked ? 0.6 : 1,
               }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: locked ? '#E5E7EB' : unitDone ? course.color : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: locked ? border : unitDone ? course.color : trackBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>
                   {locked ? '🔒' : unitDone ? '✅' : unit.icon}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: '#9CA3AF' }}>Unit {unit.unit}</span>
-                    {unitDone && <span style={{ background: course.bgLight, color: course.color, padding: '2px 8px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 700, border: `1px solid ${course.color}44` }}>COMPLETED</span>}
-                    {locked && <span style={{ background: '#F3F4F6', color: '#9CA3AF', padding: '2px 8px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 700 }}>LOCKED</span>}
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: textFaint }}>Unit {unit.unit}</span>
+                    {unitDone && <span style={{ background: unitDone ? (dark ? `${course.color}22` : course.bgLight) : trackBg, color: course.color, padding: '2px 8px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 700, border: `1px solid ${course.color}44` }}>COMPLETED</span>}
+                    {locked && <span style={{ background: trackBg, color: textFaint, padding: '2px 8px', borderRadius: 20, fontSize: '0.68rem', fontWeight: 700 }}>LOCKED</span>}
                   </div>
-                  <h3 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1rem', fontWeight: 700, color: locked ? '#9CA3AF' : '#1F2937', margin: '2px 0 0' }}>
+                  <h3 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1rem', fontWeight: 700, color: locked ? textFaint : text, margin: '2px 0 0' }}>
                     {unit.title}
                   </h3>
                 </div>
-                <div style={{ fontSize: '0.78rem', color: '#9CA3AF', flexShrink: 0 }}>
+                <div style={{ fontSize: '0.78rem', color: textFaint, flexShrink: 0 }}>
                   {unitDone2}/{unitLessons} done
                 </div>
               </div>
@@ -119,27 +127,25 @@ export default function CourseUnits() {
                     const status = getLessonStatus(lesson, unitIndex)
                     const done   = status === 'done'
                     const current = status === 'current'
-                    const available = status === 'available'
 
                     return (
                       <div key={lesson.id}
                         onClick={() => navigate(`/learn/${courseId}/${unit.id}/${lesson.id}`)}
                         style={{
                           display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px',
-                          background: current ? course.bgLight : done ? '#F0FDF4' : 'white',
-                          border: `1px solid ${current ? course.color : done ? '#BBF7D0' : '#E5E7EB'}`,
+                          background: current ? (dark ? `${course.color}22` : course.bgLight) : done ? (dark ? '#052e16' : '#F0FDF4') : cardBg,
+                          border: `1px solid ${current ? course.color : done ? (dark ? '#166534' : '#BBF7D0') : border}`,
                           borderRadius: 12, cursor: 'pointer',
                           transition: 'all 0.2s',
-                          transform: current ? 'none' : undefined,
                           boxShadow: current ? `0 4px 14px ${course.color}33` : 'none',
                         }}
                         onMouseEnter={e => { if (!done) { e.currentTarget.style.transform = 'translateX(4px)'; e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.08)' }}}
-                        onMouseLeave={e => { e.currentTarget.style.transform = current ? 'none' : 'none'; e.currentTarget.style.boxShadow = current ? `0 4px 14px ${course.color}33` : 'none' }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = current ? `0 4px 14px ${course.color}33` : 'none' }}
                       >
                         {/* Status icon */}
                         <div style={{
                           width: 40, height: 40, borderRadius: '50%',
-                          background: done ? '#10B981' : current ? course.color : '#F3F4F6',
+                          background: done ? '#10B981' : current ? course.color : trackBg,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: '1.1rem', flexShrink: 0,
                           boxShadow: current ? `0 3px 10px ${course.color}55` : done ? '0 3px 10px #10B98133' : 'none',
@@ -149,7 +155,7 @@ export default function CourseUnits() {
 
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: done ? '#065F46' : current ? '#1E40AF' : '#1F2937' }}>
+                            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: done ? '#065F46' : current ? '#1E40AF' : text }}>
                               {lIndex + 1}. {lesson.title}
                             </span>
                             {current && (
@@ -158,7 +164,7 @@ export default function CourseUnits() {
                               </span>
                             )}
                           </div>
-                          <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: '0.73rem', color: '#9CA3AF' }}>
+                          <div style={{ display: 'flex', gap: 10, marginTop: 3, fontSize: '0.73rem', color: textFaint }}>
                             <span style={{ textTransform: 'capitalize' }}>{typeIcons[lesson.type]} {lesson.type}</span>
                             <span>·</span>
                             <span>⭐ {lesson.xp} XP</span>
@@ -172,7 +178,7 @@ export default function CourseUnits() {
                             ✓ Done
                           </div>
                         ) : (
-                          <div style={{ color: current ? course.color : '#9CA3AF', fontSize: '1.1rem', flexShrink: 0 }}>›</div>
+                          <div style={{ color: current ? course.color : textFaint, fontSize: '1.1rem', flexShrink: 0 }}>›</div>
                         )}
                       </div>
                     )
@@ -185,12 +191,12 @@ export default function CourseUnits() {
 
         {/* Completion Badge */}
         {overallPercent === 100 && (
-          <div style={{ textAlign: 'center', padding: '40px 24px', background: 'white', borderRadius: 20, border: `2px solid ${course.color}`, marginTop: 16 }}>
+          <div style={{ textAlign: 'center', padding: '40px 24px', background: cardBg, borderRadius: 20, border: `2px solid ${course.color}`, marginTop: 16 }}>
             <div style={{ fontSize: '4rem', marginBottom: 12 }}>🏆</div>
-            <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1.6rem', color: '#1F2937', marginBottom: 8 }}>
+            <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1.6rem', color: text, marginBottom: 8 }}>
               Course Completed!
             </h2>
-            <p style={{ color: '#6B7280', marginBottom: 20 }}>You've mastered {course.title}! Time to earn your certificate.</p>
+            <p style={{ color: textMuted, marginBottom: 20 }}>You've mastered {course.title}! Time to earn your certificate.</p>
             <button onClick={() => navigate('/certificates')} style={{ background: course.color, color: 'white', border: 'none', padding: '12px 28px', borderRadius: 10, fontWeight: 700, cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit' }}>
               🎓 Get Certificate
             </button>

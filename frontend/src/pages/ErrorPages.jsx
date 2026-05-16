@@ -9,13 +9,13 @@ export function NotFound() {
       <div style={{ textAlign: 'center', maxWidth: 480 }}>
         <div style={{ fontSize: '7rem', lineHeight: 1, marginBottom: 8, userSelect: 'none' }}>🔍</div>
         <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '6rem', fontWeight: 800, color: '#2563EB', lineHeight: 1, marginBottom: 8, letterSpacing: -4 }}>404</div>
-        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 12 }}>Page Not Found</h2>
-        <p style={{ color: '#6B7280', lineHeight: 1.7, marginBottom: 32, fontSize: '0.95rem' }}>
+        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 12 }}>Page Not Found</h2>
+        <p style={{ color: 'var(--gray-500)', lineHeight: 1.7, marginBottom: 32, fontSize: '0.95rem' }}>
           Oops! The page you're looking for doesn't exist. It might have been moved, deleted, or you may have typed the wrong URL.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button onClick={() => navigate(-1)}
-            style={{ padding: '12px 24px', background: 'white', color: '#374151', border: '2px solid #E5E7EB', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
+            style={{ padding: '12px 24px', background: 'var(--white)', color: 'var(--gray-700)', border: '2px solid var(--gray-200)', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
             ← Go Back
           </button>
           <button onClick={() => navigate('/home')}
@@ -43,8 +43,8 @@ export function ServerError() {
       <div style={{ textAlign: 'center', maxWidth: 480 }}>
         <div style={{ fontSize: '7rem', lineHeight: 1, marginBottom: 8 }}>⚠️</div>
         <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '6rem', fontWeight: 800, color: '#EF4444', lineHeight: 1, marginBottom: 8, letterSpacing: -4 }}>500</div>
-        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 12 }}>Something Went Wrong</h2>
-        <p style={{ color: '#6B7280', lineHeight: 1.7, marginBottom: 32, fontSize: '0.95rem' }}>
+        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 12 }}>Something Went Wrong</h2>
+        <p style={{ color: 'var(--gray-500)', lineHeight: 1.7, marginBottom: 32, fontSize: '0.95rem' }}>
           We're sorry — our server encountered an error. Our team has been notified and is working on a fix. Please try again in a few minutes.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -53,7 +53,7 @@ export function ServerError() {
             🔄 Try Again
           </button>
           <button onClick={() => navigate('/home')}
-            style={{ padding: '12px 24px', background: 'white', color: '#374151', border: '2px solid #E5E7EB', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
+            style={{ padding: '12px 24px', background: 'var(--white)', color: 'var(--gray-700)', border: '2px solid var(--gray-200)', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem' }}>
             🏠 Go Home
           </button>
         </div>
@@ -92,10 +92,10 @@ export class ErrorBoundary extends Component {
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#FFF7ED,#FEF3C7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 520 }}>
           <div style={{ fontSize: '5rem', marginBottom: 16 }}>💥</div>
-          <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 12 }}>
+          <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 12 }}>
             Oops! Something crashed
           </h2>
-          <p style={{ color: '#6B7280', marginBottom: 16, lineHeight: 1.7 }}>
+          <p style={{ color: 'var(--gray-500)', marginBottom: 16, lineHeight: 1.7 }}>
             An unexpected error occurred. Your progress is saved. Please refresh the page to continue.
           </p>
           {this.state.error && (
@@ -109,7 +109,7 @@ export class ErrorBoundary extends Component {
               🔄 Refresh Page
             </button>
             <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/home' }}
-              style={{ padding: '12px 24px', background: 'white', color: '#374151', border: '2px solid #E5E7EB', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '12px 24px', background: 'var(--white)', color: 'var(--gray-700)', border: '2px solid var(--gray-200)', borderRadius: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               🏠 Go Home
             </button>
           </div>
@@ -122,11 +122,11 @@ export class ErrorBoundary extends Component {
 // ── Offline Page ───────────────────────────────────────────────────────────
 export function OfflinePage() {
   return (
-    <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--gray-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 440 }}>
         <div style={{ fontSize: '5rem', marginBottom: 16 }}>📡</div>
-        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: '#111827', marginBottom: 12 }}>You're Offline</h2>
-        <p style={{ color: '#6B7280', marginBottom: 24, lineHeight: 1.7 }}>
+        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--gray-900)', marginBottom: 12 }}>You're Offline</h2>
+        <p style={{ color: 'var(--gray-500)', marginBottom: 24, lineHeight: 1.7 }}>
           No internet connection detected. Check your connection and try again. Your progress is saved locally.
         </p>
         <button onClick={() => window.location.reload()}

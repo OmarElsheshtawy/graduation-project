@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { COURSE_CATALOG } from '../data/courseContent'
+import { useTheme } from './ThemeContext'
 
 const LEVEL_COLORS = {
   'A1-A2':        { bg: '#ECFDF5', text: '#065F46', border: '#A7F3D0' },
@@ -14,9 +15,16 @@ const LEVEL_COLORS = {
 export default function LearnCourses() {
   const navigate  = useNavigate()
   const [progress, setProgress] = useState({})
+  const { dark }  = useTheme()
+  const bgAlt     = dark ? '#1F2937' : '#F8FAFC'
+  const cardBg    = dark ? '#1F2937' : 'white'
+  const borderFm  = dark ? '#374151' : '#E5E7EB'
+  const text      = dark ? '#F9FAFB' : '#1F2937'
+  const textMuted = dark ? '#9CA3AF' : '#6B7280'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const trackBg   = dark ? '#374151' : '#F3F4F6'
 
   useEffect(() => {
-    // Load saved progress from localStorage
     const saved = {}
     COURSE_CATALOG.forEach(c => {
       const p = localStorage.getItem(`course_progress_${c.id}`)
@@ -34,7 +42,7 @@ export default function LearnCourses() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+    <div style={{ minHeight: '100vh', background: bgAlt }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)', color: 'white', padding: '48px 0' }}>
         <div className="container">
@@ -43,9 +51,6 @@ export default function LearnCourses() {
             <h1 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: 'clamp(1.8rem,3vw,2.6rem)', fontWeight: 700, color: 'white', marginBottom: 12 }}>
               Learn English — Real Courses
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '1rem', maxWidth: 500, margin: '0 auto' }}>
-              Structured lessons, interactive exercises, and real progress tracking — like Duolingo, built for you.
-            </p>
           </div>
 
           {/* Stats bar */}
@@ -63,7 +68,7 @@ export default function LearnCourses() {
 
       {/* Course Grid */}
       <div className="container" style={{ padding: '48px 24px' }}>
-        <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1.4rem', fontWeight: 700, marginBottom: 28, color: '#1F2937' }}>
+        <h2 style={{ fontFamily: 'var(--font-display, sans-serif)', fontSize: '1.4rem', fontWeight: 700, marginBottom: 28, color: text }}>
           Choose Your Course
         </h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
@@ -75,8 +80,8 @@ export default function LearnCourses() {
               <div key={course.id}
                 onClick={() => navigate(`/learn/${course.id}`)}
                 style={{
-                  background: 'white', borderRadius: 16, overflow: 'hidden',
-                  border: '1px solid #E5E7EB', cursor: 'pointer',
+                  background: cardBg, borderRadius: 16, overflow: 'hidden',
+                  border: `1px solid ${borderFm}`, cursor: 'pointer',
                   transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                 }}
@@ -99,12 +104,12 @@ export default function LearnCourses() {
 
                 {/* Body */}
                 <div style={{ padding: '16px 24px 20px' }}>
-                  <p style={{ fontSize: '0.85rem', color: '#6B7280', lineHeight: 1.6, marginBottom: 16 }}>
+                  <p style={{ fontSize: '0.85rem', color: textMuted, lineHeight: 1.6, marginBottom: 16 }}>
                     {course.description}
                   </p>
 
                   {/* Stats */}
-                  <div style={{ display: 'flex', gap: 16, marginBottom: 16, fontSize: '0.78rem', color: '#9CA3AF' }}>
+                  <div style={{ display: 'flex', gap: 16, marginBottom: 16, fontSize: '0.78rem', color: textFaint }}>
                     <span>📝 {course.totalLessons} lessons</span>
                     <span>⭐ {course.xpReward} XP</span>
                     <span>🎯 4 units</span>
@@ -113,11 +118,11 @@ export default function LearnCourses() {
                   {/* Progress */}
                   {started ? (
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#6B7280', marginBottom: 5 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: textMuted, marginBottom: 5 }}>
                         <span>{prog.completed}/{prog.total} lessons</span>
                         <span style={{ fontWeight: 700, color: course.color }}>{prog.percent}%</span>
                       </div>
-                      <div style={{ height: 6, background: '#F3F4F6', borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ height: 6, background: trackBg, borderRadius: 99, overflow: 'hidden' }}>
                         <div style={{ height: '100%', width: `${prog.percent}%`, background: course.color, borderRadius: 99, transition: 'width 0.6s ease' }} />
                       </div>
                     </div>
@@ -126,7 +131,7 @@ export default function LearnCourses() {
                   {/* CTA Button */}
                   <button style={{
                     width: '100%', padding: '10px 0',
-                    background: started ? course.color : 'white',
+                    background: started ? course.color : dark ? '#1F2937' : 'white',
                     color: started ? 'white' : course.color,
                     border: `2px solid ${course.color}`,
                     borderRadius: 10, fontWeight: 700, fontSize: '0.9rem',

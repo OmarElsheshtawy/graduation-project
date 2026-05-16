@@ -28,12 +28,12 @@ export function DragDrop({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
-      {exercise.hint && <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 5 }}>💡 {exercise.hint}</p>}
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: 'var(--gray-900)', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
+      {exercise.hint && <p style={{ color: 'var(--gray-400)', fontSize: '0.78rem', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 5 }}>💡 {exercise.hint}</p>}
 
       {/* Drop zone */}
       <div style={{ minHeight: 56, border: `2px dashed ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#D1D5DB'}`, borderRadius: 14, padding: '10px 14px', marginBottom: 16, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', background: confirmed ? (isCorrect ? '#F0FFF4' : '#FFF5F5') : '#FAFAFA', transition: 'all 0.2s' }}>
-        {sentence.length === 0 && <span style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Drag or tap words here to build your sentence...</span>}
+        {sentence.length === 0 && <span style={{ color: 'var(--gray-400)', fontSize: '0.875rem' }}>Drag or tap words here to build your sentence...</span>}
         {sentence.map((word, i) => (
           <button key={i} onClick={() => removeWord(word, i)} disabled={confirmed}
             style={{ padding: '7px 14px', background: confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#2563EB', color: 'white', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: '0.875rem', cursor: confirmed ? 'default' : 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
@@ -43,12 +43,12 @@ export function DragDrop({ exercise, onAnswer }) {
       </div>
 
       {/* Word bank */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20, padding: '14px', background: '#F9FAFB', borderRadius: 12, minHeight: 52 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20, padding: '14px', background: 'var(--gray-50)', borderRadius: 12, minHeight: 52 }}>
         {available.map((word, i) => (
           <button key={i} onClick={() => addWord(word, i)} disabled={confirmed}
-            style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1.5px solid #E5E7EB', borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+            style={{ padding: '8px 14px', background: 'var(--white)', color: 'var(--gray-700)', border: '1.5px solid var(--gray-200)', borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
             onMouseEnter={e => { if (!confirmed) { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.color = '#1D4ED8'; e.currentTarget.style.transform = 'translateY(-2px)' }}}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151'; e.currentTarget.style.transform = 'none' }}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--gray-200)'; e.currentTarget.style.color = 'var(--gray-700)'; e.currentTarget.style.transform = 'none' }}>
             {word}
           </button>
         ))}
@@ -56,7 +56,7 @@ export function DragDrop({ exercise, onAnswer }) {
 
       {!confirmed ? (
         <button onClick={checkAnswer} disabled={sentence.length === 0}
-          style={{ width: '100%', padding: 14, borderRadius: 12, background: sentence.length > 0 ? '#2563EB' : '#E5E7EB', color: sentence.length > 0 ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: sentence.length > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 14, borderRadius: 12, background: sentence.length > 0 ? '#2563EB' : 'var(--gray-200)', color: sentence.length > 0 ? 'white' : 'var(--gray-400)', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: sentence.length > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           ✓ Check Answer
         </button>
       ) : (
@@ -99,11 +99,11 @@ export function ImageQuestion({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 20, lineHeight: 1.5 }}>{exercise.question}</h3>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: 'var(--gray-900)', marginBottom: 20, lineHeight: 1.5 }}>{exercise.question}</h3>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 20 }}>
         {exercise.options.map((opt, i) => {
-          let border = '2px solid #E5E7EB', bg = 'white', color = '#374151'
+          let border = '2px solid var(--gray-200)', bg = 'var(--white)', color = 'var(--gray-700)'
           if (confirmed) {
             if (i === exercise.answer)           { border = '2px solid #22C55E'; bg = '#DCFCE7'; color = '#166534' }
             else if (i === selected)             { border = '2px solid #EF4444'; bg = '#FEE2E2'; color = '#991B1B' }
@@ -113,7 +113,7 @@ export function ImageQuestion({ exercise, onAnswer }) {
             <button key={i} onClick={() => { if (!confirmed) setSelected(i) }}
               style={{ padding: '20px 12px', border, borderRadius: 14, background: bg, color, cursor: confirmed ? 'default' : 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}
               onMouseEnter={e => { if (!confirmed && selected !== i) e.currentTarget.style.borderColor = '#93C5FD' }}
-              onMouseLeave={e => { if (!confirmed && selected !== i) e.currentTarget.style.borderColor = '#E5E7EB' }}>
+              onMouseLeave={e => { if (!confirmed && selected !== i) e.currentTarget.style.borderColor = 'var(--gray-200)' }}>
               <span style={{ fontSize: '2.5rem' }}>{getEmoji(typeof opt === 'string' ? opt : opt.label || '')}</span>
               <span style={{ fontWeight: 600, fontSize: '0.875rem', textAlign: 'center' }}>{typeof opt === 'string' ? opt : opt.label}</span>
               {confirmed && i === exercise.answer && <span style={{ fontSize: '0.7rem', fontWeight: 800 }}>✓ Correct</span>}
@@ -124,7 +124,7 @@ export function ImageQuestion({ exercise, onAnswer }) {
 
       {!confirmed ? (
         <button onClick={() => { if (selected !== null) { setConfirmed(true); onAnswer(isCorrect) } }} disabled={selected === null}
-          style={{ width: '100%', padding: 14, borderRadius: 12, background: selected !== null ? '#2563EB' : '#E5E7EB', color: selected !== null ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 14, borderRadius: 12, background: selected !== null ? '#2563EB' : 'var(--gray-200)', color: selected !== null ? 'white' : 'var(--gray-400)', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           ✓ Check Answer
         </button>
       ) : (
@@ -169,8 +169,8 @@ export function AudioTranscript({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
-      <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginBottom: 18 }}>🎧 Press play to hear the audio, then type what you hear.</p>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: 'var(--gray-900)', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
+      <p style={{ color: 'var(--gray-400)', fontSize: '0.78rem', marginBottom: 18 }}>🎧 Press play to hear the audio, then type what you hear.</p>
 
       {/* Audio player simulation */}
       <div style={{ background: 'linear-gradient(135deg,#1E3A5F,#2563EB)', borderRadius: 16, padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -201,11 +201,11 @@ export function AudioTranscript({ exercise, onAnswer }) {
 
       <textarea value={input} onChange={e => setInput(e.target.value)} disabled={confirmed || playCount === 0}
         placeholder={playCount === 0 ? 'Press ▶️ to listen first...' : 'Type what you heard...'}
-        rows={3} style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#E5E7EB'}`, borderRadius: 12, fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none', resize: 'none', background: playCount === 0 ? '#F9FAFB' : 'white', marginBottom: 14, color: '#374151' }} />
+        rows={3} style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : 'var(--gray-200)'}`, borderRadius: 12, fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none', resize: 'none', background: playCount === 0 ? 'var(--gray-50)' : 'var(--white)', marginBottom: 14, color: 'var(--gray-700)' }} />
 
       {!confirmed ? (
         <button onClick={checkAnswer} disabled={!input.trim() || playCount === 0}
-          style={{ width: '100%', padding: 14, borderRadius: 12, background: input.trim() && playCount > 0 ? '#2563EB' : '#E5E7EB', color: input.trim() && playCount > 0 ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: input.trim() && playCount > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 14, borderRadius: 12, background: input.trim() && playCount > 0 ? '#2563EB' : 'var(--gray-200)', color: input.trim() && playCount > 0 ? 'white' : 'var(--gray-400)', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: input.trim() && playCount > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           ✓ Check My Answer
         </button>
       ) : (
@@ -250,11 +250,11 @@ export function DialogueExercise({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 6, lineHeight: 1.5 }}>{exercise.question}</h3>
-      <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginBottom: 20 }}>💬 Complete the dialogue by choosing the correct responses.</p>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: 'var(--gray-900)', marginBottom: 6, lineHeight: 1.5 }}>{exercise.question}</h3>
+      <p style={{ color: 'var(--gray-400)', fontSize: '0.78rem', marginBottom: 20 }}>💬 Complete the dialogue by choosing the correct responses.</p>
 
       {/* Dialogue bubbles */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24, background: '#F9FAFB', borderRadius: 16, padding: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24, background: 'var(--gray-50)', borderRadius: 16, padding: '16px' }}>
         {dialogue.map((line, lineIdx) => {
           const isA = line.speaker === 'A'
           if (line.isGap) {
@@ -267,7 +267,7 @@ export function DialogueExercise({ exercise, onAnswer }) {
                 <div style={{ maxWidth: '75%' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {line.options.map((opt, optIdx) => {
-                      let bg = 'white', border = '1.5px solid #E5E7EB', color = '#374151'
+                      let bg = 'var(--white)', border = '1.5px solid var(--gray-200)', color = 'var(--gray-700)'
                       if (completed) {
                         if (optIdx === line.answer)               { bg = '#DCFCE7'; border = '1.5px solid #22C55E'; color = '#166534' }
                         else if (optIdx === chosen && optIdx !== line.answer) { bg = '#FEE2E2'; border = '1.5px solid #EF4444'; color = '#991B1B' }
@@ -299,7 +299,7 @@ export function DialogueExercise({ exercise, onAnswer }) {
 
       {!completed ? (
         <button onClick={checkAll} disabled={Object.keys(selected).length < gaps.length}
-          style={{ width: '100%', padding: 14, borderRadius: 12, background: Object.keys(selected).length >= gaps.length ? '#2563EB' : '#E5E7EB', color: Object.keys(selected).length >= gaps.length ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: Object.keys(selected).length >= gaps.length ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 14, borderRadius: 12, background: Object.keys(selected).length >= gaps.length ? '#2563EB' : 'var(--gray-200)', color: Object.keys(selected).length >= gaps.length ? 'white' : 'var(--gray-400)', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: Object.keys(selected).length >= gaps.length ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           ✓ Check Dialogue ({Object.keys(selected).length}/{gaps.length} answered)
         </button>
       ) : (
@@ -333,12 +333,12 @@ export function StoryExercise({ exercise, onAnswer }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <span style={{ fontSize: '1.5rem' }}>📖</span>
           <div>
-            <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: '#111827', margin: 0 }}>{exercise.title}</h3>
-            <p style={{ color: '#9CA3AF', fontSize: '0.72rem', margin: 0 }}>Read the story, then answer questions</p>
+            <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: 'var(--gray-900)', margin: 0 }}>{exercise.title}</h3>
+            <p style={{ color: 'var(--gray-400)', fontSize: '0.72rem', margin: 0 }}>Read the story, then answer questions</p>
           </div>
         </div>
 
-        <div style={{ background: 'white', borderRadius: 16, padding: '20px 22px', border: '2px solid #DBEAFE', marginBottom: 20, lineHeight: 2, fontSize: '0.9rem', color: '#374151', maxHeight: 320, overflowY: 'auto' }}
+        <div style={{ background: 'var(--white)', borderRadius: 16, padding: '20px 22px', border: '2px solid #DBEAFE', marginBottom: 20, lineHeight: 2, fontSize: '0.9rem', color: 'var(--gray-700)', maxHeight: 320, overflowY: 'auto' }}
           dangerouslySetInnerHTML={{ __html: exercise.story.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#1D4ED8">$1</strong>').replace(/\n/g, '<br/>') }} />
 
         <button onClick={() => setPhase('questions')}
@@ -354,14 +354,14 @@ export function StoryExercise({ exercise, onAnswer }) {
       <button onClick={() => setPhase('read')} style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', marginBottom: 16, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>
         ← Re-read story
       </button>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: '#111827', marginBottom: 18 }}>Comprehension Questions</h3>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: 'var(--gray-900)', marginBottom: 18 }}>Comprehension Questions</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}>
         {questions.map((q, qIdx) => (
-          <div key={qIdx} style={{ background: '#F9FAFB', borderRadius: 14, padding: '14px 16px' }}>
-            <p style={{ fontWeight: 700, color: '#111827', fontSize: '0.9rem', marginBottom: 10 }}>Q{qIdx+1}: {q.question}</p>
+          <div key={qIdx} style={{ background: 'var(--gray-50)', borderRadius: 14, padding: '14px 16px' }}>
+            <p style={{ fontWeight: 700, color: 'var(--gray-900)', fontSize: '0.9rem', marginBottom: 10 }}>Q{qIdx+1}: {q.question}</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {q.options.map((opt, optIdx) => {
-                let bg = 'white', border = '1.5px solid #E5E7EB', color = '#374151'
+                let bg = 'var(--white)', border = '1.5px solid var(--gray-200)', color = 'var(--gray-700)'
                 if (confirmed) {
                   if (optIdx === q.answer)                           { bg = '#DCFCE7'; border = '1.5px solid #22C55E'; color = '#166534' }
                   else if (optIdx === answers[qIdx] && optIdx !== q.answer) { bg = '#FEE2E2'; border = '1.5px solid #EF4444'; color = '#991B1B' }
@@ -383,7 +383,7 @@ export function StoryExercise({ exercise, onAnswer }) {
       </div>
       {!confirmed ? (
         <button onClick={checkAnswers} disabled={!allAnswered}
-          style={{ width: '100%', padding: 14, borderRadius: 12, background: allAnswered ? '#2563EB' : '#E5E7EB', color: allAnswered ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: allAnswered ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 14, borderRadius: 12, background: allAnswered ? '#2563EB' : 'var(--gray-200)', color: allAnswered ? 'white' : 'var(--gray-400)', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: allAnswered ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           ✓ Submit Answers ({Object.keys(answers).length}/{questions.length})
         </button>
       ) : (

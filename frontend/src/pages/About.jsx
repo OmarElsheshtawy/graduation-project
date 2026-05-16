@@ -55,18 +55,18 @@ function About() {
               <div className="team-member">
                 <div className="member-avatar"></div>
                 <h3>Dr. Emily Chen</h3>
-                <p className="member-role">Founder & CEO</p>
+                <p className="member-role">Instructor</p>
                 <p>Ph.D. in Linguistics, 15+ years in language education</p>
               </div>
               <div className="team-member">
                 <div className="member-avatar"></div>
-                <h3>Michael Rodriguez</h3>
+                <h3>Omar Abdulaziz</h3>
                 <p className="member-role">Head of Curriculum</p>
                 <p>M.A. in TESOL, curriculum design specialist</p>
               </div>
               <div className="team-member">
                 <div className="member-avatar"></div>
-                <h3>Sarah Johnson</h3>
+                <h3>Ahmed Osama</h3>
                 <p className="member-role">Community Manager</p>
                 <p>Expert in building engaging learning communities</p>
               </div>

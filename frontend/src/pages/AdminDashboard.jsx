@@ -105,7 +105,7 @@ export default function AdminDashboard() {
               ['Instructors', stats.usersByRole?.instructor ?? 0],
               ['Admins', stats.usersByRole?.admin ?? 0],
             ].map(([label, val]) => (
-              <div key={label} style={{ background: 'white', borderRadius: 14, padding: '18px 16px', border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)' }}>
+              <div key={label} style={{ background: 'var(--white)', borderRadius: 14, padding: '18px 16px', border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)' }}>
                 <div style={{ fontSize: '0.72rem', color: 'var(--gray-500)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
                 <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--gray-900)', marginTop: 6 }}>{val}</div>
               </div>
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         )}
 
         <h2 style={{ fontSize: '1.1rem', marginBottom: 14, color: 'var(--gray-900)' }}>Users</h2>
-        <div style={{ background: 'white', borderRadius: 14, border: '1px solid var(--gray-200)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ background: 'var(--white)', borderRadius: 14, border: '1px solid var(--gray-200)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ background: 'var(--gray-50)', textAlign: 'left' }}>

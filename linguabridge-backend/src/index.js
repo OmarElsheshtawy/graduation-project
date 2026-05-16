@@ -15,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth',        require('./routes/auth'));
+app.use('/api/auth',        require('./routes/oauth'));
 app.use('/api/courses',     require('./routes/courses'));
 app.use('/api/enrollments', require('./routes/enrollments'));
 app.use('/api/instructor',  require('./routes/instructor'));

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTheme } from './ThemeContext'
 
 // ── Notification data ──────────────────────────────────────────────────────
 const INITIAL_NOTIFICATIONS = [
@@ -103,6 +104,15 @@ export function NotificationBell() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
+  const { dark }   = useTheme()
+  const dropBg     = dark ? '#1F2937' : 'white'
+  const dropBorder = dark ? '#374151' : '#F3F4F6'
+  const dropText   = dark ? '#F9FAFB' : '#111827'
+  const dropMuted  = dark ? '#9CA3AF' : '#6B7280'
+  const dropFaint  = dark ? '#6B7280' : '#9CA3AF'
+  const unreadBg   = dark ? '#1E3A5F' : '#F0F7FF'
+  const hoverBg    = dark ? '#374151' : '#F9FAFB'
+  const badgeBorder = dark ? '#1F2937' : 'white'
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -123,17 +133,17 @@ export function NotificationBell() {
           <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
         </svg>
         {unreadCount > 0 && (
-          <div style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, background: '#EF4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: 'white', fontWeight: 800, border: '2px solid white' }}>
+          <div style={{ position: 'absolute', top: 4, right: 4, width: 18, height: 18, background: '#EF4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', color: 'white', fontWeight: 800, border: `2px solid ${badgeBorder}` }}>
             {unreadCount > 9 ? '9+' : unreadCount}
           </div>
         )}
       </button>
 
       {open && (
-        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 340, background: 'white', borderRadius: 16, boxShadow: '0 16px 48px rgba(0,0,0,0.15)', border: '1px solid #F3F4F6', overflow: 'hidden', zIndex: 1000, animation: 'fadeInDown 0.2s ease' }}>
+        <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, width: 340, background: dropBg, borderRadius: 16, boxShadow: '0 16px 48px rgba(0,0,0,0.15)', border: `1px solid ${dropBorder}`, overflow: 'hidden', zIndex: 1000, animation: 'fadeInDown 0.2s ease' }}>
           {/* Header */}
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontWeight: 700, color: '#111827', fontSize: '0.95rem' }}>
+          <div style={{ padding: '14px 16px', borderBottom: `1px solid ${dropBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontWeight: 700, color: dropText, fontSize: '0.95rem' }}>
               Notifications {unreadCount > 0 && <span style={{ background: '#EF4444', color: 'white', fontSize: '0.6rem', padding: '2px 6px', borderRadius: 10, marginLeft: 6 }}>{unreadCount}</span>}
             </div>
             {unreadCount > 0 && (
@@ -146,32 +156,32 @@ export function NotificationBell() {
           {/* Notifications list */}
           <div style={{ maxHeight: 380, overflowY: 'auto' }}>
             {notifications.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '32px 16px', color: '#9CA3AF' }}>
+              <div style={{ textAlign: 'center', padding: '32px 16px', color: dropFaint }}>
                 <div style={{ fontSize: '2rem', marginBottom: 8 }}>🔔</div>
                 <p style={{ fontSize: '0.85rem' }}>No notifications yet</p>
               </div>
             ) : notifications.map(notif => (
               <div key={notif.id} onClick={() => markRead(notif.id)}
-                style={{ padding: '12px 16px', display: 'flex', gap: 12, cursor: 'pointer', background: notif.read ? 'white' : '#F0F7FF', borderBottom: '1px solid #F9FAFB', transition: 'background 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#F9FAFB'}
-                onMouseLeave={e => e.currentTarget.style.background = notif.read ? 'white' : '#F0F7FF'}>
+                style={{ padding: '12px 16px', display: 'flex', gap: 12, cursor: 'pointer', background: notif.read ? dropBg : unreadBg, borderBottom: `1px solid ${dropBorder}`, transition: 'background 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = hoverBg}
+                onMouseLeave={e => e.currentTarget.style.background = notif.read ? dropBg : unreadBg}>
                 <div style={{ width: 38, height: 38, borderRadius: '50%', background: (typeColors[notif.type] || '#6B7280') + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>
                   {notif.icon}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6 }}>
-                    <span style={{ fontWeight: notif.read ? 500 : 700, fontSize: '0.82rem', color: '#111827' }}>{notif.title}</span>
+                    <span style={{ fontWeight: notif.read ? 500 : 700, fontSize: '0.82rem', color: dropText }}>{notif.title}</span>
                     {!notif.read && <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', flexShrink: 0, marginTop: 4 }} />}
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: '#6B7280', margin: '2px 0 4px', lineHeight: 1.4 }}>{notif.body}</p>
-                  <span style={{ fontSize: '0.68rem', color: '#9CA3AF' }}>{notif.time}</span>
+                  <p style={{ fontSize: '0.75rem', color: dropMuted, margin: '2px 0 4px', lineHeight: 1.4 }}>{notif.body}</p>
+                  <span style={{ fontSize: '0.68rem', color: dropFaint }}>{notif.time}</span>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Footer */}
-          <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
+          <div style={{ padding: '10px 16px', borderTop: `1px solid ${dropBorder}`, textAlign: 'center' }}>
             <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               View All Notifications
             </button>

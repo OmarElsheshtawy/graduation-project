@@ -29,28 +29,40 @@ const seed = async () => {
 
     const usersResult = await client.query(`
       INSERT INTO users (name, email, password, role) VALUES
-        ('Admin User',         'admin@linguabridge.com',      $1, 'admin'),
-        ('Dr. Emily Chen',     'emily@linguabridge.com',      $2, 'instructor'),
-        ('Michael Rodriguez',  'michael@linguabridge.com',    $3, 'instructor'),
-        ('Sarah Johnson',      'sarah@linguabridge.com',      $4, 'student'),
-        ('Ahmed Hassan',       'ahmed@linguabridge.com',      $5, 'student'),
-        ('Yuki Tanaka',        'yuki@linguabridge.com',       $6, 'student')
+        ('Admin User',         'admin@gmail.com',      $1,  'admin'),
+        ('Dr. Emily Chen',     'emily@gmail.com',      $2,  'instructor'),
+        ('Sarah Johnson',      'sarah@gmail.com',      $3,  'student'),
+        ('Ahmed Hassan',       'ahmed@gmail.com',      $4,  'student'),
+        ('Yuki Tanaka',        'yuki@gmail.com',       $5,  'student'),
+        ('Maria Silva',        'maria@gmail.com',      $6,  'student'),
+        ('Omar Abdullah',      'omar@gmail.com',       $7,  'student'),
+        ('Emma Wilson',        'emma@gmail.com',       $8,  'student'),
+        ('Lucas Oliveira',     'lucas@gmail.com',      $9,  'student'),
+        ('Fatima Al-Rashid',   'fatima@gmail.com',     $10, 'student')
       RETURNING id, name, role;
     `, [
       hash('Admin123!'),
       hash('Emily123!'),
-      hash('Michael123!'),
       hash('Sarah123!'),
       hash('Ahmed123!'),
       hash('Yuki123!'),
+      hash('Maria123!'),
+      hash('Omar123!'),
+      hash('Emma123!'),
+      hash('Lucas123!'),
+      hash('Fatima123!'),
     ]);
     console.log('👤 Users:', usersResult.rows.map(u => `${u.name} (${u.role})`).join(', '));
 
-    const emilyId   = usersResult.rows[1].id;
-    const michaelId = usersResult.rows[2].id;
-    const sarahId   = usersResult.rows[3].id;
-    const ahmedId   = usersResult.rows[4].id;
-    const yukiId    = usersResult.rows[5].id;
+    const emilyId  = usersResult.rows[1].id;
+    const sarahId  = usersResult.rows[2].id;
+    const ahmedId  = usersResult.rows[3].id;
+    const yukiId   = usersResult.rows[4].id;
+    const mariaId  = usersResult.rows[5].id;
+    const omarId   = usersResult.rows[6].id;
+    const emmaId   = usersResult.rows[7].id;
+    const lucasId  = usersResult.rows[8].id;
+    const fatimaId = usersResult.rows[9].id;
 
     // ── Courses ───────────────────────────────────────────────────────────────
     const coursesResult = await client.query(`
@@ -75,35 +87,57 @@ const seed = async () => {
          'Focus on speaking and listening skills through interactive conversations and real-world scenarios.',
          'Beginner+', '6 weeks', 39.00, $1, true)
       RETURNING id, title;
-    `, [emilyId, michaelId]);
+    `, [emilyId, emilyId]);
     console.log('📚 Courses:', coursesResult.rows.map(c => c.title).join(', '));
 
-    const [c1, c2, c3, c4, c5] = coursesResult.rows.map(c => c.id);
+    const [c1, c2, c3, c4, c5, c6] = coursesResult.rows.map(c => c.id);
 
     // ── Enrollments ───────────────────────────────────────────────────────────
-    // Sarah enrolled in c1, c2, c3
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [sarahId, c1]);
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [sarahId, c2]);
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [sarahId, c3]);
-    // Ahmed enrolled in c1, c4
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [ahmedId, c1]);
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [ahmedId, c4]);
-    // Yuki enrolled in c1, c5
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [yukiId, c1]);
-    await client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [yukiId, c5]);
+    const enroll = (sid, cid) =>
+      client.query(`INSERT INTO enrollments (student_id, course_id) VALUES ($1,$2)`, [sid, cid]);
+
+    // Sarah → Beginner, Intermediate, Advanced
+    await enroll(sarahId,  c1); await enroll(sarahId,  c2); await enroll(sarahId,  c3);
+    // Ahmed → Beginner, Business English
+    await enroll(ahmedId,  c1); await enroll(ahmedId,  c4);
+    // Yuki → Beginner, IELTS
+    await enroll(yukiId,   c1); await enroll(yukiId,   c5);
+    // Maria → Beginner, Conversational
+    await enroll(mariaId,  c1); await enroll(mariaId,  c6);
+    // Omar → Intermediate, Business English, IELTS
+    await enroll(omarId,   c2); await enroll(omarId,   c4); await enroll(omarId, c5);
+    // Emma → Beginner, Intermediate
+    await enroll(emmaId,   c1); await enroll(emmaId,   c2);
+    // Lucas → Advanced, IELTS
+    await enroll(lucasId,  c3); await enroll(lucasId,  c5);
+    // Fatima → Beginner, Business English, Conversational
+    await enroll(fatimaId, c1); await enroll(fatimaId, c4); await enroll(fatimaId, c6);
 
     // ── Progress ──────────────────────────────────────────────────────────────
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [sarahId, c1, 60]);
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [sarahId, c2, 30]);
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [sarahId, c3, 0]);
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [ahmedId, c1, 80]);
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [ahmedId, c4, 15]);
-    await client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [yukiId, c1, 45]);
+    const prog = (sid, cid, pct) =>
+      client.query(`INSERT INTO progress (student_id, course_id, percent_complete) VALUES ($1,$2,$3)`, [sid, cid, pct]);
+
+    // Sarah
+    await prog(sarahId,  c1, 60); await prog(sarahId,  c2, 30); await prog(sarahId,  c3,  0);
+    // Ahmed
+    await prog(ahmedId,  c1, 80); await prog(ahmedId,  c4, 15);
+    // Yuki
+    await prog(yukiId,   c1, 45); await prog(yukiId,   c5, 10);
+    // Maria
+    await prog(mariaId,  c1, 100); await prog(mariaId, c6, 55);
+    // Omar
+    await prog(omarId,   c2, 70); await prog(omarId,   c4, 40); await prog(omarId,  c5, 20);
+    // Emma
+    await prog(emmaId,   c1, 100); await prog(emmaId,  c2, 65);
+    // Lucas
+    await prog(lucasId,  c3, 35); await prog(lucasId,  c5, 80);
+    // Fatima
+    await prog(fatimaId, c1, 90); await prog(fatimaId, c4, 25); await prog(fatimaId, c6, 50);
 
     // ── Contact messages ──────────────────────────────────────────────────────
     await client.query(`
       INSERT INTO contact_messages (name, email, subject, message) VALUES
-        ('Ahmed Hassan',  'ahmed@linguabridge.com',  'Course question',
+        ('Ahmed Hassan',  'ahmed@gmail.com',  'Course question',
          'When does the IELTS course next cohort start?'),
         ('Maria Silva',   'maria@example.com',       'Technical issue',
          'I cannot access my course videos after enrolling.');
@@ -113,9 +147,16 @@ const seed = async () => {
     console.log('✅ Database seeded successfully!');
     console.log('');
     console.log('📋 Demo login credentials:');
-    console.log('   Instructor → emily@linguabridge.com   / Emily123!');
-    console.log('   Student    → sarah@linguabridge.com   / Sarah123!');
-    console.log('   Admin      → admin@linguabridge.com   / Admin123!');
+    console.log('   Admin      → admin@gmail.com   / Admin123!');
+    console.log('   Instructor → emily@gmail.com   / Emily123!');
+    console.log('   Student    → sarah@gmail.com   / Sarah123!');
+    console.log('   Student    → ahmed@gmail.com   / Ahmed123!');
+    console.log('   Student    → yuki@gmail.com    / Yuki123!');
+    console.log('   Student    → maria@gmail.com   / Maria123!');
+    console.log('   Student    → omar@gmail.com    / Omar123!');
+    console.log('   Student    → emma@gmail.com    / Emma123!');
+    console.log('   Student    → lucas@gmail.com   / Lucas123!');
+    console.log('   Student    → fatima@gmail.com  / Fatima123!');
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Seed failed:', err.message);

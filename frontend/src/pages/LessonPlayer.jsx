@@ -1,29 +1,37 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { COURSES, loadProgress, saveProgress, getCourseById } from '../data/courseData'
+import { useTheme } from './ThemeContext'
 
 // ── Exercise: Multiple Choice ──────────────────────────────────────────────
 function MultipleChoice({ exercise, onAnswer }) {
   const [selected, setSelected] = useState(null)
   const [confirmed, setConfirmed] = useState(false)
   const isCorrect = selected === exercise.answer
+  const { dark } = useTheme()
+  const cardBg   = dark ? '#1F2937' : 'white'
+  const borderFm = dark ? '#374151' : '#E5E7EB'
+  const text     = dark ? '#F9FAFB' : '#111827'
+  const textBody = dark ? '#D1D5DB' : '#374151'
+  const trackBg  = dark ? '#374151' : '#E5E7EB'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 20, lineHeight: 1.5 }}>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: text, marginBottom: 20, lineHeight: 1.5 }}>
         {exercise.question}
       </h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
         {exercise.options.map((opt, i) => {
-          let bg = 'white', border = '#E5E7EB', color = '#374151'
+          let optBg = cardBg, optBorder = borderFm, optColor = textBody
           if (confirmed) {
-            if (i === exercise.answer) { bg = '#DCFCE7'; border = '#22C55E'; color = '#166534' }
-            else if (i === selected) { bg = '#FEE2E2'; border = '#EF4444'; color = '#991B1B' }
-          } else if (selected === i) { bg = '#EFF6FF'; border = '#2563EB'; color = '#1D4ED8' }
+            if (i === exercise.answer) { optBg = '#DCFCE7'; optBorder = '#22C55E'; optColor = '#166534' }
+            else if (i === selected) { optBg = '#FEE2E2'; optBorder = '#EF4444'; optColor = '#991B1B' }
+          } else if (selected === i) { optBg = '#EFF6FF'; optBorder = '#2563EB'; optColor = '#1D4ED8' }
           return (
             <button key={i} onClick={() => { if (!confirmed) setSelected(i) }}
-              style={{ padding: '13px 18px', border: `2px solid ${border}`, borderRadius: 12, background: bg, color, fontWeight: selected === i || (confirmed && i === exercise.answer) ? 600 : 400, fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left', cursor: confirmed ? 'default' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ width: 26, height: 26, borderRadius: '50%', border: `2px solid ${border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+              style={{ padding: '13px 18px', border: `2px solid ${optBorder}`, borderRadius: 12, background: optBg, color: optColor, fontWeight: selected === i || (confirmed && i === exercise.answer) ? 600 : 400, fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left', cursor: confirmed ? 'default' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ width: 26, height: 26, borderRadius: '50%', border: `2px solid ${optBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
                 {confirmed && i === exercise.answer ? '✓' : confirmed && i === selected && i !== exercise.answer ? '✗' : String.fromCharCode(65 + i)}
               </span>
               {opt}
@@ -33,7 +41,7 @@ function MultipleChoice({ exercise, onAnswer }) {
       </div>
       {!confirmed ? (
         <button onClick={() => { if (selected !== null) { setConfirmed(true); onAnswer(isCorrect) } }} disabled={selected === null}
-          style={{ width: '100%', padding: 13, borderRadius: 12, background: selected !== null ? '#2563EB' : '#E5E7EB', color: selected !== null ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 13, borderRadius: 12, background: selected !== null ? '#2563EB' : trackBg, color: selected !== null ? 'white' : textFaint, border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           Check Answer
         </button>
       ) : (
@@ -52,6 +60,12 @@ function FillBlank({ exercise, onAnswer }) {
   const [confirmed, setConfirmed] = useState(false)
   const inputRef = useRef(null)
   useEffect(() => { inputRef.current?.focus() }, [])
+  const { dark } = useTheme()
+  const bg       = dark ? '#111827' : 'white'
+  const borderFm = dark ? '#374151' : '#E5E7EB'
+  const text     = dark ? '#F9FAFB' : '#111827'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const trackBg  = dark ? '#374151' : '#E5E7EB'
 
   // Accept multiple correct answers separated by /
   const correctAnswers = exercise.answer.split(' / ').map(a => a.trim().toLowerCase())
@@ -61,15 +75,15 @@ function FillBlank({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: '#111827', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
-      {exercise.hint && <p style={{ color: '#9CA3AF', fontSize: '0.8rem', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>💡 {exercise.hint}</p>}
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.15rem', color: text, marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
+      {exercise.hint && <p style={{ color: textFaint, fontSize: '0.8rem', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>💡 {exercise.hint}</p>}
       <input ref={inputRef} type="text" value={input} onChange={e => setInput(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter' && !confirmed) check() }}
         disabled={confirmed} placeholder="Type your answer..."
-        style={{ width: '100%', padding: '13px 16px', border: `2px solid ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#E5E7EB'}`, borderRadius: 12, fontSize: '1rem', fontFamily: 'inherit', outline: 'none', background: confirmed ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : 'white', marginBottom: 12, transition: 'all 0.2s' }} />
+        style={{ width: '100%', padding: '13px 16px', border: `2px solid ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : borderFm}`, borderRadius: 12, fontSize: '1rem', fontFamily: 'inherit', outline: 'none', color: text, background: confirmed ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : bg, marginBottom: 12, transition: 'all 0.2s' }} />
       {!confirmed ? (
         <button onClick={check} disabled={!input.trim()}
-          style={{ width: '100%', padding: 13, borderRadius: 12, background: input.trim() ? '#2563EB' : '#E5E7EB', color: input.trim() ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: input.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 13, borderRadius: 12, background: input.trim() ? '#2563EB' : trackBg, color: input.trim() ? 'white' : textFaint, border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: input.trim() ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           Check Answer
         </button>
       ) : (
@@ -90,6 +104,11 @@ function MatchExercise({ exercise, onAnswer }) {
   const [done, setDone]        = useState(false)
   const pairs = exercise.pairs
   const [shuffledRight] = useState(() => [...pairs.map(p => p[1])].sort(() => Math.random() - 0.5))
+  const { dark } = useTheme()
+  const cardBg   = dark ? '#1F2937' : 'white'
+  const borderFm = dark ? '#374151' : '#E5E7EB'
+  const text     = dark ? '#F9FAFB' : '#111827'
+  const textBody = dark ? '#D1D5DB' : '#374151'
 
   const handleLeft  = (i)   => { if (done) return; setLeftSel(i) }
   const handleRight = (val) => {
@@ -108,12 +127,12 @@ function MatchExercise({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: '#111827', marginBottom: 20 }}>{exercise.question}</h3>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: text, marginBottom: 20 }}>{exercise.question}</h3>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {pairs.map((pair, i) => (
             <button key={i} onClick={() => handleLeft(i)} disabled={matched[i] !== undefined}
-              style={{ padding: '11px 14px', border: `2px solid ${matched[i] ? '#22C55E' : leftSel === i ? '#2563EB' : '#E5E7EB'}`, borderRadius: 10, background: matched[i] ? '#DCFCE7' : leftSel === i ? '#EFF6FF' : 'white', color: matched[i] ? '#166534' : leftSel === i ? '#1D4ED8' : '#374151', fontWeight: 600, fontSize: '0.875rem', cursor: matched[i] ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
+              style={{ padding: '11px 14px', border: `2px solid ${matched[i] ? '#22C55E' : leftSel === i ? '#2563EB' : borderFm}`, borderRadius: 10, background: matched[i] ? '#DCFCE7' : leftSel === i ? '#EFF6FF' : cardBg, color: matched[i] ? '#166534' : leftSel === i ? '#1D4ED8' : textBody, fontWeight: 600, fontSize: '0.875rem', cursor: matched[i] ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
               {matched[i] ? '✓ ' : ''}{pair[0]}
             </button>
           ))}
@@ -121,7 +140,7 @@ function MatchExercise({ exercise, onAnswer }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {shuffledRight.map((val, i) => (
             <button key={i} onClick={() => handleRight(val)} disabled={isRightMatched(val)}
-              style={{ padding: '11px 14px', border: `2px solid ${isRightMatched(val) ? '#22C55E' : wrongPair === val ? '#EF4444' : '#E5E7EB'}`, borderRadius: 10, background: isRightMatched(val) ? '#DCFCE7' : wrongPair === val ? '#FEE2E2' : 'white', color: isRightMatched(val) ? '#166534' : wrongPair === val ? '#991B1B' : '#374151', fontWeight: 600, fontSize: '0.875rem', cursor: isRightMatched(val) ? 'default' : leftSel !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
+              style={{ padding: '11px 14px', border: `2px solid ${isRightMatched(val) ? '#22C55E' : wrongPair === val ? '#EF4444' : borderFm}`, borderRadius: 10, background: isRightMatched(val) ? '#DCFCE7' : wrongPair === val ? '#FEE2E2' : cardBg, color: isRightMatched(val) ? '#166534' : wrongPair === val ? '#991B1B' : textBody, fontWeight: 600, fontSize: '0.875rem', cursor: isRightMatched(val) ? 'default' : leftSel !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
               {val}
             </button>
           ))}
@@ -137,6 +156,14 @@ function ReorderExercise({ exercise, onAnswer }) {
   const [available, setAvailable] = useState(() => [...exercise.words].sort(() => Math.random() - 0.5))
   const [sentence, setSentence]   = useState([])
   const [confirmed, setConfirmed] = useState(false)
+  const { dark } = useTheme()
+  const cardBg   = dark ? '#1F2937' : 'white'
+  const bgAlt    = dark ? '#1F2937' : '#FAFAFA'
+  const borderFm = dark ? '#374151' : '#E5E7EB'
+  const text     = dark ? '#F9FAFB' : '#111827'
+  const textBody = dark ? '#D1D5DB' : '#374151'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const trackBg  = dark ? '#374151' : '#E5E7EB'
 
   const addWord    = (w, i) => { if (confirmed) return; setSentence(s => [...s, w]); setAvailable(a => a.filter((_, j) => j !== i)) }
   const removeWord = (w, i) => { if (confirmed) return; setAvailable(a => [...a, w]); setSentence(s => s.filter((_, j) => j !== i)) }
@@ -146,9 +173,9 @@ function ReorderExercise({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: '#111827', marginBottom: 16 }}>{exercise.question}</h3>
-      <div style={{ minHeight: 52, border: `2px dashed ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#D1D5DB'}`, borderRadius: 12, padding: '10px 14px', marginBottom: 14, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', background: confirmed ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : '#FAFAFA' }}>
-        {sentence.length === 0 && <span style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Tap words to build your sentence...</span>}
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: text, marginBottom: 16 }}>{exercise.question}</h3>
+      <div style={{ minHeight: 52, border: `2px dashed ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : borderFm}`, borderRadius: 12, padding: '10px 14px', marginBottom: 14, display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', background: confirmed ? (isCorrect ? '#DCFCE7' : '#FEE2E2') : bgAlt }}>
+        {sentence.length === 0 && <span style={{ color: textFaint, fontSize: '0.875rem' }}>Tap words to build your sentence...</span>}
         {sentence.map((w, i) => (
           <button key={i} onClick={() => removeWord(w, i)} disabled={confirmed}
             style={{ padding: '7px 14px', background: '#2563EB', color: 'white', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: confirmed ? 'default' : 'pointer', fontFamily: 'inherit' }}>
@@ -159,16 +186,16 @@ function ReorderExercise({ exercise, onAnswer }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
         {available.map((w, i) => (
           <button key={i} onClick={() => addWord(w, i)} disabled={confirmed}
-            style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '2px solid #E5E7EB', borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+            style={{ padding: '8px 14px', background: cardBg, color: textBody, border: `2px solid ${borderFm}`, borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.color = '#1D4ED8' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151' }}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = borderFm; e.currentTarget.style.color = textBody }}>
             {w}
           </button>
         ))}
       </div>
       {!confirmed ? (
         <button onClick={check} disabled={sentence.length === 0}
-          style={{ width: '100%', padding: 13, borderRadius: 12, background: sentence.length > 0 ? '#2563EB' : '#E5E7EB', color: sentence.length > 0 ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: sentence.length > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 13, borderRadius: 12, background: sentence.length > 0 ? '#2563EB' : trackBg, color: sentence.length > 0 ? 'white' : textFaint, border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: sentence.length > 0 ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           Check Answer
         </button>
       ) : (
@@ -192,6 +219,15 @@ function DragDrop({ exercise, onAnswer }) {
   const [bank, setBank]       = useState(() => exercise.words.map((w, i) => ({ word: w, id: i })).sort(() => Math.random() - 0.5))
   const [dragging, setDragging] = useState(null)
   const [confirmed, setConfirmed] = useState(false)
+  const { dark } = useTheme()
+  const bg       = dark ? '#111827' : 'white'
+  const bgAlt    = dark ? '#1F2937' : '#F9FAFB'
+  const borderFm = dark ? '#374151' : '#E5E7EB'
+  const text     = dark ? '#F9FAFB' : '#111827'
+  const textBody = dark ? '#D1D5DB' : '#374151'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const trackBg  = dark ? '#374151' : '#E5E7EB'
+  const chipBg   = dark ? '#374151' : '#F3F4F6'
 
   const isCorrect = slots.every((s, i) => s?.word === exercise.answer.split(' ')[i])
 
@@ -225,16 +261,16 @@ function DragDrop({ exercise, onAnswer }) {
 
   return (
     <div>
-      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: '#111827', marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
-      <p style={{ color: '#9CA3AF', fontSize: '0.78rem', marginBottom: 16 }}>🖱️ Drag and drop the words into the correct order</p>
+      <h3 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.1rem', color: text, marginBottom: 8, lineHeight: 1.5 }}>{exercise.question}</h3>
+      <p style={{ color: textFaint, fontSize: '0.78rem', marginBottom: 16 }}>🖱️ Drag and drop the words into the correct order</p>
 
       {/* Slots */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, minHeight: 52, padding: '8px 12px', background: '#F9FAFB', borderRadius: 12, border: `2px dashed ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : '#D1D5DB'}` }}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, minHeight: 52, padding: '8px 12px', background: bgAlt, borderRadius: 12, border: `2px dashed ${confirmed ? (isCorrect ? '#22C55E' : '#EF4444') : borderFm}` }}
         onDragOver={e => e.preventDefault()} onDrop={e => e.target === e.currentTarget && handleDropBank()}>
         {slots.map((slot, i) => (
           <div key={i}
             onDragOver={e => e.preventDefault()} onDrop={() => handleDropSlot(i)}
-            style={{ minWidth: 80, height: 40, border: `2px dashed ${slot ? '#2563EB' : '#D1D5DB'}`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: slot ? '#EFF6FF' : 'white' }}>
+            style={{ minWidth: 80, height: 40, border: `2px dashed ${slot ? '#2563EB' : borderFm}`, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: slot ? '#EFF6FF' : bg }}>
             {slot && (
               <div draggable={!confirmed} onDragStart={() => handleDragStart({ ...slot, slotIdx: i }, 'slot')}
                 style={{ padding: '6px 12px', background: '#2563EB', color: 'white', borderRadius: 6, fontWeight: 600, fontSize: '0.875rem', cursor: 'grab' }}>
@@ -246,20 +282,20 @@ function DragDrop({ exercise, onAnswer }) {
       </div>
 
       {/* Word bank */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '10px 12px', background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', marginBottom: 14 }}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '10px 12px', background: bg, borderRadius: 12, border: `1px solid ${borderFm}`, marginBottom: 14 }}
         onDragOver={e => e.preventDefault()} onDrop={handleDropBank}>
         {bank.map(item => (
           <div key={item.id} draggable={!confirmed} onDragStart={() => handleDragStart(item, 'bank')}
-            style={{ padding: '7px 14px', background: '#F3F4F6', color: '#374151', borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'grab', border: '1px solid #E5E7EB' }}>
+            style={{ padding: '7px 14px', background: chipBg, color: textBody, borderRadius: 8, fontWeight: 600, fontSize: '0.875rem', cursor: 'grab', border: `1px solid ${borderFm}` }}>
             {item.word}
           </div>
         ))}
-        {bank.length === 0 && <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>All words placed!</span>}
+        {bank.length === 0 && <span style={{ color: textFaint, fontSize: '0.8rem' }}>All words placed!</span>}
       </div>
 
       {!confirmed ? (
         <button onClick={handleCheck} disabled={slots.some(s => !s)}
-          style={{ width: '100%', padding: 13, borderRadius: 12, background: !slots.some(s => !s) ? '#2563EB' : '#E5E7EB', color: !slots.some(s => !s) ? 'white' : '#9CA3AF', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: !slots.some(s => !s) ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+          style={{ width: '100%', padding: 13, borderRadius: 12, background: !slots.some(s => !s) ? '#2563EB' : trackBg, color: !slots.some(s => !s) ? 'white' : textFaint, border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: !slots.some(s => !s) ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
           Check Order
         </button>
       ) : (
@@ -280,6 +316,18 @@ export default function LessonPlayer() {
   const { courseId, lessonId } = useParams()
   const navigate = useNavigate()
 
+  const { dark }  = useTheme()
+  const bg        = dark ? '#111827' : 'white'
+  const bgAlt     = dark ? '#1F2937' : '#F9FAFB'
+  const cardBg    = dark ? '#1F2937' : 'white'
+  const borderFm  = dark ? '#374151' : '#E5E7EB'
+  const border    = dark ? '#374151' : '#F3F4F6'
+  const text      = dark ? '#F9FAFB' : '#111827'
+  const textMuted = dark ? '#9CA3AF' : '#6B7280'
+  const textFaint = dark ? '#6B7280' : '#9CA3AF'
+  const textBody  = dark ? '#D1D5DB' : '#374151'
+  const trackBg   = dark ? '#374151' : '#F3F4F6'
+
   const course    = getCourseById(courseId)
   const allLessons = course?.units.flatMap(u => u.lessons) || []
   const lesson     = allLessons.find(l => l.id === lessonId)
@@ -291,6 +339,16 @@ export default function LessonPlayer() {
   const [correctCount, setCorrectCount] = useState(0)
   const [waitingNext,  setWaitingNext]  = useState(false)
   const [lastCorrect,  setLastCorrect]  = useState(null)
+
+  useEffect(() => {
+    setPhase('intro')
+    setExIdx(0)
+    setHearts(3)
+    setXpEarned(0)
+    setCorrectCount(0)
+    setWaitingNext(false)
+    setLastCorrect(null)
+  }, [lessonId])
 
   useEffect(() => { if (!course || !lesson) navigate('/courses') }, [])
   if (!course || !lesson) return null
@@ -339,30 +397,30 @@ export default function LessonPlayer() {
 
   // ── INTRO ──────────────────────────────────────────────────────────────
   if (phase === 'intro') {
-    const { vocabulary, explanation, text, dialogue, phrases, sampleAnswer, writingPrompt } = lesson.content
+    const { vocabulary, explanation, text: lessonText, dialogue, phrases, sampleAnswer, writingPrompt } = lesson.content
 
     return (
-      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ minHeight: '100vh', background: bgAlt, display: 'flex', flexDirection: 'column' }}>
         {/* Topbar */}
-        <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 10 }}>
-          <button onClick={() => navigate(`/learn/${courseId}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontFamily: 'inherit', fontWeight: 600, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 6 }}>✕ Exit</button>
-          <div style={{ height: 20, width: 1, background: '#E5E7EB' }} />
+        <div style={{ background: bg, borderBottom: `1px solid ${borderFm}`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 14, position: 'sticky', top: 0, zIndex: 10 }}>
+          <button onClick={() => navigate(`/learn/${courseId}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textMuted, fontFamily: 'inherit', fontWeight: 600, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: 6 }}>✕ Exit</button>
+          <div style={{ height: 20, width: 1, background: borderFm }} />
           <span style={{ fontSize: '1.2rem' }}>{TYPE_ICONS[lesson.type] || '📚'}</span>
-          <span style={{ fontWeight: 700, color: '#111827', fontSize: '0.95rem', flex: 1 }}>{lesson.title}</span>
+          <span style={{ fontWeight: 700, color: text, fontSize: '0.95rem', flex: 1 }}>{lesson.title}</span>
           <span style={{ background: course.color + '18', color: course.color, padding: '4px 10px', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700 }}>⚡ +{lesson.xp} XP</span>
         </div>
 
         <div style={{ flex: 1, padding: '28px 20px', maxWidth: 720, margin: '0 auto', width: '100%' }}>
-          <p style={{ color: '#6B7280', fontSize: '0.95rem', marginBottom: 24, lineHeight: 1.7 }}>{lesson.content.intro}</p>
+          <p style={{ color: textMuted, fontSize: '0.95rem', marginBottom: 24, lineHeight: 1.7 }}>{lesson.content.intro}</p>
 
           {/* Vocabulary cards */}
           {vocabulary && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12, marginBottom: 24 }}>
               {vocabulary.map((v, i) => (
-                <div key={i} style={{ background: 'white', borderRadius: 14, padding: 16, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+                <div key={i} style={{ background: cardBg, borderRadius: 14, padding: 16, border: `1px solid ${borderFm}`, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
                   <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.05rem', fontWeight: 700, color: course.color, marginBottom: 4 }}>{v.word}</div>
-                  <div style={{ fontSize: '0.78rem', color: '#9CA3AF', marginBottom: 8 }}>{v.translation}</div>
-                  <div style={{ fontSize: '0.82rem', color: '#4B5563', fontStyle: 'italic', lineHeight: 1.5 }}>"{v.example}"</div>
+                  <div style={{ fontSize: '0.78rem', color: textFaint, marginBottom: 8 }}>{v.translation}</div>
+                  <div style={{ fontSize: '0.82rem', color: textBody, fontStyle: 'italic', lineHeight: 1.5 }}>"{v.example}"</div>
                 </div>
               ))}
             </div>
@@ -370,32 +428,32 @@ export default function LessonPlayer() {
 
           {/* Grammar explanation */}
           {explanation && (
-            <div style={{ background: 'white', borderRadius: 16, padding: 22, border: '1px solid #E5E7EB', marginBottom: 20, lineHeight: 1.85, fontSize: '0.9rem', color: '#374151' }}
+            <div style={{ background: cardBg, borderRadius: 16, padding: 22, border: `1px solid ${borderFm}`, marginBottom: 20, lineHeight: 1.85, fontSize: '0.9rem', color: textBody }}
               dangerouslySetInnerHTML={{ __html: explanation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br/>') }} />
           )}
 
           {/* Dialogue */}
           {dialogue && (
-            <div style={{ background: 'white', borderRadius: 16, padding: 22, border: `2px solid ${course.color}30`, marginBottom: 20 }}>
+            <div style={{ background: cardBg, borderRadius: 16, padding: 22, border: `2px solid ${course.color}30`, marginBottom: 20 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: course.color, marginBottom: 12 }}>💬 Dialogue</div>
-              <div style={{ lineHeight: 2, fontSize: '0.9rem', color: '#374151' }}
-                dangerouslySetInnerHTML={{ __html: dialogue.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#111827">$1</strong>').replace(/\n/g, '<br/>') }} />
+              <div style={{ lineHeight: 2, fontSize: '0.9rem', color: textBody }}
+                dangerouslySetInnerHTML={{ __html: dialogue.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${text}">$1</strong>`).replace(/\n/g, '<br/>') }} />
             </div>
           )}
 
           {/* Story text */}
-          {text && (
-            <div style={{ background: 'white', borderRadius: 16, padding: 22, border: `2px solid ${course.color}25`, marginBottom: 20 }}>
+          {lessonText && (
+            <div style={{ background: cardBg, borderRadius: 16, padding: 22, border: `2px solid ${course.color}25`, marginBottom: 20 }}>
               <div style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: course.color, marginBottom: 12 }}>📖 Reading</div>
-              <div style={{ lineHeight: 2, fontSize: '0.9rem', color: '#374151' }}
-                dangerouslySetInnerHTML={{ __html: text.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#111827">$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br/>') }} />
+              <div style={{ lineHeight: 2, fontSize: '0.9rem', color: textBody }}
+                dangerouslySetInnerHTML={{ __html: lessonText.replace(/\*\*(.*?)\*\*/g, `<strong style="color:${text}">$1</strong>`).replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br/>') }} />
             </div>
           )}
 
           {/* Writing sample */}
           {sampleAnswer && (
             <div style={{ marginBottom: 20 }}>
-              <h4 style={{ fontWeight: 700, color: '#111827', marginBottom: 10, fontSize: '0.9rem' }}>📝 Sample Answer</h4>
+              <h4 style={{ fontWeight: 700, color: text, marginBottom: 10, fontSize: '0.9rem' }}>📝 Sample Answer</h4>
               <div style={{ background: '#F0FDF4', border: '1px solid #A7F3D0', borderRadius: 12, padding: '14px 18px', fontSize: '0.875rem', color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
                 {sampleAnswer}
               </div>
@@ -405,10 +463,10 @@ export default function LessonPlayer() {
           {/* Speaking phrases */}
           {phrases && (
             <div style={{ marginBottom: 20 }}>
-              <h4 style={{ fontWeight: 700, color: '#111827', marginBottom: 10, fontSize: '0.9rem' }}>🗣️ Key Phrases</h4>
+              <h4 style={{ fontWeight: 700, color: text, marginBottom: 10, fontSize: '0.9rem' }}>🗣️ Key Phrases</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {phrases.map((p, i) => (
-                  <div key={i} style={{ background: course.color + '10', borderLeft: `3px solid ${course.color}`, borderRadius: '0 10px 10px 0', padding: '10px 14px', fontSize: '0.875rem', color: '#374151' }}>
+                  <div key={i} style={{ background: course.color + '10', borderLeft: `3px solid ${course.color}`, borderRadius: '0 10px 10px 0', padding: '10px 14px', fontSize: '0.875rem', color: textBody }}>
                     {p}
                   </div>
                 ))}
@@ -419,12 +477,88 @@ export default function LessonPlayer() {
           {/* Examples */}
           {lesson.content.examples && (
             <div style={{ marginBottom: 20 }}>
-              <h4 style={{ fontWeight: 700, color: '#111827', marginBottom: 10, fontSize: '0.9rem' }}>📌 Examples</h4>
+              <h4 style={{ fontWeight: 700, color: text, marginBottom: 10, fontSize: '0.9rem' }}>📌 Examples</h4>
               {lesson.content.examples.map((ex, i) => (
-                <div key={i} style={{ padding: '9px 14px', background: course.color + '0D', borderLeft: `3px solid ${course.color}`, borderRadius: '0 10px 10px 0', marginBottom: 8, fontSize: '0.875rem', color: '#374151', fontStyle: 'italic' }}>
+                <div key={i} style={{ padding: '9px 14px', background: course.color + '0D', borderLeft: `3px solid ${course.color}`, borderRadius: '0 10px 10px 0', marginBottom: 8, fontSize: '0.875rem', color: textBody, fontStyle: 'italic' }}>
                   {ex}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Key Points summary */}
+          {lesson.content.key_points && (
+            <div style={{ background: `linear-gradient(135deg, ${course.color}10, ${course.color}05)`, border: `1px solid ${course.color}25`, borderRadius: 16, padding: '18px 20px', marginBottom: 20 }}>
+              <h4 style={{ fontWeight: 700, color: course.color, marginBottom: 12, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 7 }}>
+                🔑 Key Points
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {lesson.content.key_points.map((pt, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.875rem', color: textBody, lineHeight: 1.6 }}>
+                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: course.color, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.7rem', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                    <span dangerouslySetInnerHTML={{ __html: pt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Common Mistakes */}
+          {lesson.content.common_mistakes && (
+            <div style={{ marginBottom: 20 }}>
+              <h4 style={{ fontWeight: 700, color: text, marginBottom: 12, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 7 }}>
+                ⚠️ Common Mistakes to Avoid
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {lesson.content.common_mistakes.map((m, i) => (
+                  <div key={i} style={{ background: cardBg, border: `1px solid ${borderFm}`, borderRadius: 12, padding: '12px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <span style={{ background: '#FEE2E2', color: '#DC2626', borderRadius: 6, padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}>❌ Wrong</span>
+                      <span style={{ fontSize: '0.875rem', color: '#DC2626', fontStyle: 'italic', textDecoration: 'line-through' }}>{m.wrong}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: m.explanation ? 8 : 0 }}>
+                      <span style={{ background: '#DCFCE7', color: '#16A34A', borderRadius: 6, padding: '2px 8px', fontSize: '0.75rem', fontWeight: 700 }}>✅ Correct</span>
+                      <span style={{ fontSize: '0.875rem', color: '#16A34A', fontWeight: 600 }}>{m.correct}</span>
+                    </div>
+                    {m.explanation && (
+                      <div style={{ fontSize: '0.78rem', color: textMuted, marginTop: 6, lineHeight: 1.5, borderTop: `1px solid ${border}`, paddingTop: 6 }}
+                        dangerouslySetInnerHTML={{ __html: m.explanation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tips */}
+          {lesson.content.tips && (
+            <div style={{ marginBottom: 20 }}>
+              {lesson.content.tips.map((tip, i) => (
+                <div key={i} style={{ background: dark ? '#292017' : '#FFFBEB', border: `1px solid ${dark ? '#78350F' : '#FDE68A'}`, borderRadius: 12, padding: '11px 16px', marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.875rem', color: dark ? '#FCD34D' : '#92400E', lineHeight: 1.6 }}>
+                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>💡</span>
+                  <span dangerouslySetInnerHTML={{ __html: tip.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Fun Fact */}
+          {lesson.content.fun_fact && (
+            <div style={{ background: dark ? 'linear-gradient(135deg,#1E1B4B,#2D1F69)' : 'linear-gradient(135deg, #EDE9FE, #F5F3FF)', border: `1px solid ${dark ? '#4C1D95' : '#C4B5FD'}`, borderRadius: 14, padding: '14px 18px', marginBottom: 20, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>🌍</span>
+              <div>
+                <div style={{ fontWeight: 700, color: dark ? '#A78BFA' : '#5B21B6', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 5 }}>Did You Know?</div>
+                <div style={{ fontSize: '0.875rem', color: dark ? '#C4B5FD' : '#4C1D95', lineHeight: 1.65 }}
+                  dangerouslySetInnerHTML={{ __html: lesson.content.fun_fact.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+              </div>
+            </div>
+          )}
+
+          {/* Writing Prompt */}
+          {lesson.content.writingPrompt && (
+            <div style={{ background: dark ? '#0C1A2E' : '#F0F9FF', border: `1px solid ${dark ? '#1E3A5F' : '#BAE6FD'}`, borderRadius: 14, padding: '14px 18px', marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, color: dark ? '#38BDF8' : '#0369A1', fontSize: '0.82rem', marginBottom: 8 }}>✍️ Practice Prompt</div>
+              <div style={{ fontSize: '0.9rem', color: dark ? '#7DD3FC' : '#1E40AF', lineHeight: 1.6 }}>{lesson.content.writingPrompt}</div>
             </div>
           )}
 
@@ -434,7 +568,7 @@ export default function LessonPlayer() {
           </button>
 
           {totalEx === 0 && (
-            <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '0.8rem', marginTop: 12 }}>This lesson is reading/study only — no exercises</p>
+            <p style={{ textAlign: 'center', color: textFaint, fontSize: '0.8rem', marginTop: 12 }}>This lesson is reading/study only — no exercises</p>
           )}
         </div>
       </div>
@@ -446,12 +580,12 @@ export default function LessonPlayer() {
     const exercise = exercises[exIdx]
 
     return (
-      <div style={{ minHeight: '100vh', background: '#F9FAFB', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ minHeight: '100vh', background: bgAlt, display: 'flex', flexDirection: 'column' }}>
         {/* Progress bar */}
-        <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ background: bg, borderBottom: `1px solid ${borderFm}`, padding: '12px 20px', position: 'sticky', top: 0, zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, maxWidth: 720, margin: '0 auto' }}>
-            <button onClick={() => navigate(`/learn/${courseId}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontFamily: 'inherit', padding: 4 }}>✕</button>
-            <div style={{ flex: 1, height: 10, background: '#F3F4F6', borderRadius: 10, overflow: 'hidden' }}>
+            <button onClick={() => navigate(`/learn/${courseId}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textFaint, fontFamily: 'inherit', padding: 4 }}>✕</button>
+            <div style={{ flex: 1, height: 10, background: trackBg, borderRadius: 10, overflow: 'hidden' }}>
               <div style={{ height: '100%', background: course.color, width: `${progress}%`, borderRadius: 10, transition: 'width 0.4s ease' }} />
             </div>
             <div style={{ display: 'flex', gap: 2 }}>
@@ -465,15 +599,15 @@ export default function LessonPlayer() {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <div style={{ textAlign: 'center', maxWidth: 360 }}>
               <div style={{ fontSize: '4rem', marginBottom: 12 }}>💔</div>
-              <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', color: '#111827', marginBottom: 8 }}>Out of hearts!</h2>
-              <p style={{ color: '#6B7280', marginBottom: 24 }}>Review the material and try again — you've got this!</p>
+              <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', color: text, marginBottom: 8 }}>Out of hearts!</h2>
+              <p style={{ color: textMuted, marginBottom: 24 }}>Review the material and try again — you've got this!</p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
                 <button onClick={() => { setPhase('intro'); setExIdx(0); setHearts(3); setXpEarned(0); setCorrectCount(0) }}
                   style={{ padding: '12px 24px', borderRadius: 12, background: course.color, color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                   🔄 Try Again
                 </button>
                 <button onClick={() => navigate(`/learn/${courseId}`)}
-                  style={{ padding: '12px 24px', borderRadius: 12, background: 'white', color: '#6B7280', border: '2px solid #E5E7EB', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '12px 24px', borderRadius: 12, background: bg, color: textMuted, border: `2px solid ${borderFm}`, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                   ← Back
                 </button>
               </div>
@@ -481,7 +615,7 @@ export default function LessonPlayer() {
           </div>
         ) : (
           <div style={{ flex: 1, padding: '28px 20px', maxWidth: 680, margin: '0 auto', width: '100%' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: '#9CA3AF', marginBottom: 18 }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: textFaint, marginBottom: 18 }}>
               Question {exIdx + 1} of {totalEx}
             </div>
 
@@ -507,21 +641,21 @@ export default function LessonPlayer() {
   // ── COMPLETE ───────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: '100vh', background: course.color + '08', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'white', borderRadius: 24, padding: 40, maxWidth: 440, width: '100%', textAlign: 'center', boxShadow: '0 16px 48px rgba(0,0,0,0.1)', border: `2px solid ${course.color}20` }}>
+      <div style={{ background: cardBg, borderRadius: 24, padding: 40, maxWidth: 440, width: '100%', textAlign: 'center', boxShadow: '0 16px 48px rgba(0,0,0,0.1)', border: `2px solid ${course.color}20` }}>
         <div style={{ fontSize: '4rem', marginBottom: 12 }}>
           {accuracy >= 80 ? '🌟' : accuracy >= 60 ? '⭐' : '💪'}
         </div>
-        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.8rem', color: '#111827', marginBottom: 6 }}>Lesson Complete!</h2>
-        <p style={{ color: '#6B7280', marginBottom: 28 }}>
+        <h2 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.8rem', color: text, marginBottom: 6 }}>Lesson Complete!</h2>
+        <p style={{ color: textMuted, marginBottom: 28 }}>
           {accuracy >= 80 ? 'Outstanding work! Keep it up!' : accuracy >= 60 ? 'Good effort! Practice makes perfect!' : 'Keep practicing — you\'re improving!'}
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 28 }}>
           {[['⚡', `+${lesson.xp}`, 'XP Earned'], ['🎯', `${accuracy}%`, 'Accuracy'], ['❤️', `${hearts}/3`, 'Hearts Left']].map(([icon, val, label]) => (
-            <div key={label} style={{ background: '#F9FAFB', borderRadius: 12, padding: 14 }}>
+            <div key={label} style={{ background: bgAlt, borderRadius: 12, padding: 14 }}>
               <div style={{ fontSize: '1.3rem' }}>{icon}</div>
               <div style={{ fontFamily: 'var(--font-display,sans-serif)', fontWeight: 800, fontSize: '1.3rem', color: course.color, lineHeight: 1.1 }}>{val}</div>
-              <div style={{ fontSize: '0.65rem', color: '#9CA3AF', marginTop: 2 }}>{label}</div>
+              <div style={{ fontSize: '0.65rem', color: textFaint, marginTop: 2 }}>{label}</div>
             </div>
           ))}
         </div>
@@ -534,12 +668,12 @@ export default function LessonPlayer() {
             </button>
           )}
           <button onClick={() => navigate(`/learn/${courseId}`)}
-            style={{ padding: 14, borderRadius: 12, background: 'white', color: '#6B7280', border: '2px solid #E5E7EB', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ padding: 14, borderRadius: 12, background: bg, color: textMuted, border: `2px solid ${borderFm}`, fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}>
             Back to Course Map
           </button>
           {accuracy < 70 && (
             <button onClick={() => { setPhase('intro'); setExIdx(0); setHearts(3); setXpEarned(0); setCorrectCount(0) }}
-              style={{ padding: 14, borderRadius: 12, background: '#FEF3C7', color: '#92400E', border: '2px solid #FDE68A', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: 14, borderRadius: 12, background: dark ? '#292017' : '#FEF3C7', color: dark ? '#FCD34D' : '#92400E', border: `2px solid ${dark ? '#78350F' : '#FDE68A'}`, fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', fontFamily: 'inherit' }}>
               🔄 Retry for Better Score
             </button>
           )}

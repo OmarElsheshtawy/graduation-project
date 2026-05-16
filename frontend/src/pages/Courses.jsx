@@ -76,12 +76,12 @@ function Courses() {
         </div>
       </section>
 
-      <div style={{ background: '#fff', borderBottom: '1px solid #E8EDF2', padding: '1.5rem 0' }}>
+      <div style={{ background: 'var(--white)', borderBottom: '1px solid var(--gray-200)', padding: '1.5rem 0' }}>
         <div className="container" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <input type="text" placeholder="🔍 Search courses..." value={search} onChange={e => setSearch(e.target.value)}
-            style={{ flex: 1, minWidth: '200px', padding: '0.75rem 1rem', border: '1px solid #E8EDF2', borderRadius: '8px', fontSize: '1rem' }} />
+            style={{ flex: 1, minWidth: '200px', padding: '0.75rem 1rem', border: '1px solid var(--gray-200)', borderRadius: '8px', fontSize: '1rem', background: 'var(--white)', color: 'var(--gray-900)' }} />
           <select value={levelFilter} onChange={e => setLevelFilter(e.target.value)}
-            style={{ padding: '0.75rem 1rem', border: '1px solid #E8EDF2', borderRadius: '8px', fontSize: '1rem', background: 'white', cursor: 'pointer' }}>
+            style={{ padding: '0.75rem 1rem', border: '1px solid var(--gray-200)', borderRadius: '8px', fontSize: '1rem', background: 'var(--white)', color: 'var(--gray-900)', cursor: 'pointer' }}>
             <option value="">All Levels</option>
             {levels.map(l => <option key={l} value={l}>{l}</option>)}
           </select>
@@ -94,14 +94,14 @@ function Courses() {
       <section className="courses-section">
         <div className="container">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: '#5A6C7D' }}>⏳ Loading courses...</div>
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--gray-500)' }}>⏳ Loading courses...</div>
           ) : error ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: '#DC2626' }}>
               <p>{error}</p>
               <button onClick={fetchCourses} className="btn-primary" style={{ marginTop: '1rem' }}>Try Again</button>
             </div>
           ) : courses.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem', color: '#5A6C7D' }}>📚 No courses found.</div>
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--gray-500)' }}>📚 No courses found.</div>
           ) : (
             <div className="courses-grid">
               {courses.map(course => (

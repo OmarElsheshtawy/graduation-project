@@ -26,12 +26,7 @@ export default function Certificates() {
     }, 300)
   }
 
-  // Mock completed courses if none from API
-  const MOCK_CERTS = [
-    { id: 1, title: 'Beginner English', instructor_name: 'Dr. Emily Chen', progress: 100, enrolled_at: '2024-12-01' },
-  ]
-
-  const certs = enrollments.length > 0 ? enrollments : MOCK_CERTS
+  const certs = enrollments
 
   return (
     <div>

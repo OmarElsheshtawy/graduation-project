@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../services/api'
+import { useTheme } from './ThemeContext'
 
 export default function ForgotPassword() {
   const [email, setEmail]       = useState('')
@@ -8,6 +9,13 @@ export default function ForgotPassword() {
   const [sent, setSent]         = useState(false)
   const [devLink, setDevLink]   = useState('')
   const [error, setError]       = useState('')
+  const { dark }    = useTheme()
+  const outerBg     = dark ? 'linear-gradient(135deg,#0F172A,#1E3A5F)' : 'linear-gradient(135deg,#F0F7FF,#fff)'
+  const cardBg      = dark ? '#1F2937' : 'white'
+  const text        = dark ? '#F9FAFB' : '#111827'
+  const textMuted   = dark ? '#9CA3AF' : '#6B7280'
+  const borderFm    = dark ? '#374151' : '#E5E7EB'
+  const inputBg     = dark ? '#111827' : 'white'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -22,12 +30,12 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#F0F7FF,#fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'white', borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 16px 48px rgba(0,0,0,0.1)' }}>
+    <div style={{ minHeight: '100vh', background: outerBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: cardBg, borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 16px 48px rgba(0,0,0,0.1)', border: `1px solid ${borderFm}` }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔑</div>
-          <h1 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', color: '#111827', margin: '0 0 8px' }}>Forgot Password?</h1>
-          <p style={{ color: '#6B7280', fontSize: '0.9rem' }}>Enter your email and we'll send you a reset link.</p>
+          <h1 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', color: text, margin: '0 0 8px' }}>Forgot Password?</h1>
+          <p style={{ color: textMuted, fontSize: '0.9rem' }}>Enter your email and we'll send you a reset link.</p>
         </div>
 
         {sent ? (
@@ -48,16 +56,16 @@ export default function ForgotPassword() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {error && <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px 14px', borderRadius: 10, fontSize: '0.875rem' }}>{error}</div>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontWeight: 600, fontSize: '0.875rem', color: '#374151' }}>Email Address</label>
+              <label style={{ fontWeight: 600, fontSize: '0.875rem', color: text }}>Email Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required
-                style={{ padding: '12px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: '0.925rem', fontFamily: 'inherit', outline: 'none' }}
+                style={{ padding: '12px 14px', border: `1.5px solid ${borderFm}`, borderRadius: 10, fontSize: '0.925rem', fontFamily: 'inherit', outline: 'none', background: inputBg, color: text }}
                 onFocus={e => e.target.style.borderColor = '#2563EB'}
-                onBlur={e => e.target.style.borderColor = '#E5E7EB'} />
+                onBlur={e => e.target.style.borderColor = borderFm} />
             </div>
             <button type="submit" disabled={loading} className="btn btn-primary btn-full btn-lg">
               {loading ? '⏳ Sending...' : 'Send Reset Link'}
             </button>
-            <Link to="/" style={{ textAlign: 'center', color: '#6B7280', fontSize: '0.875rem' }}>← Back to Sign In</Link>
+            <Link to="/" style={{ textAlign: 'center', color: textMuted, fontSize: '0.875rem' }}>← Back to Sign In</Link>
           </form>
         )}
       </div>
@@ -74,6 +82,12 @@ export function ResetPassword() {
   const [loading, setLoading]   = useState(false)
   const [success, setSuccess]   = useState(false)
   const [error,   setError]     = useState('')
+  const { dark }    = useTheme()
+  const outerBg     = dark ? 'linear-gradient(135deg,#0F172A,#1E3A5F)' : 'linear-gradient(135deg,#F0F7FF,#fff)'
+  const cardBg      = dark ? '#1F2937' : 'white'
+  const text        = dark ? '#F9FAFB' : '#111827'
+  const borderFm    = dark ? '#374151' : '#E5E7EB'
+  const inputBg     = dark ? '#111827' : 'white'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -90,12 +104,12 @@ export function ResetPassword() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg,#F0F7FF,#fff)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div style={{ background: 'white', borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 16px 48px rgba(0,0,0,0.1)' }}>
+    <div style={{ minHeight: '100vh', background: outerBg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <div style={{ background: cardBg, borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 16px 48px rgba(0,0,0,0.1)', border: `1px solid ${borderFm}` }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔒</div>
-          <h1 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', color: '#111827', margin: '0 0 8px' }}>Reset Password</h1>
-          <p style={{ color: '#6B7280', fontSize: '0.9rem' }}>Enter your new password below.</p>
+          <h1 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.6rem', color: text, margin: '0 0 8px' }}>Reset Password</h1>
+          <p style={{ color: dark ? '#9CA3AF' : '#6B7280', fontSize: '0.9rem' }}>Enter your new password below.</p>
         </div>
 
         {success ? (
@@ -111,11 +125,11 @@ export function ResetPassword() {
             {!token && <div style={{ background: '#FEF3C7', color: '#92400E', padding: '10px 14px', borderRadius: 10, fontSize: '0.875rem' }}>⚠️ No reset token found. Please use the link from your email.</div>}
             {[['New Password', password, setPassword], ['Confirm Password', confirmPassword, setConfirmPassword]].map(([label, val, setter]) => (
               <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontWeight: 600, fontSize: '0.875rem', color: '#374151' }}>{label}</label>
+                <label style={{ fontWeight: 600, fontSize: '0.875rem', color: text }}>{label}</label>
                 <input type="password" value={val} onChange={e => setter(e.target.value)} placeholder="Min 8 characters" required
-                  style={{ padding: '12px 14px', border: '1.5px solid #E5E7EB', borderRadius: 10, fontSize: '0.925rem', fontFamily: 'inherit', outline: 'none' }}
+                  style={{ padding: '12px 14px', border: `1.5px solid ${borderFm}`, borderRadius: 10, fontSize: '0.925rem', fontFamily: 'inherit', outline: 'none', background: inputBg, color: text }}
                   onFocus={e => e.target.style.borderColor = '#2563EB'}
-                  onBlur={e => e.target.style.borderColor = '#E5E7EB'} />
+                  onBlur={e => e.target.style.borderColor = borderFm} />
               </div>
             ))}
             <button type="submit" disabled={loading || !token} className="btn btn-primary btn-full btn-lg">

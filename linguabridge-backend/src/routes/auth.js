@@ -11,6 +11,8 @@ const { protect } = require('../middleware/auth');
 const generateToken = (user) =>
   jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
+const isGmail = (email) => /^[^\s@]+@gmail\.com$/i.test(email);
+
 const sendEmail = async (to, subject, html) => {
   // Using nodemailer — install with: npm install nodemailer
   try {
@@ -43,38 +45,26 @@ router.post('/register', [
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
     const { name, email, password, role = 'student' } = req.body;
+
+    if (!isGmail(email)) return res.status(422).json({ message: 'Only Gmail addresses (@gmail.com) are accepted.' });
+
     const safeRole = ['student', 'instructor'].includes(role) ? role : 'student';
 
     const exists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
     if (exists.rows.length) return res.status(409).json({ message: 'Email already registered' });
 
-    const hashed  = await bcrypt.hash(password, 12);
-    const verifyToken = crypto.randomBytes(32).toString('hex');
-    const verifyExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    const hashed = await bcrypt.hash(password, 12);
 
     const { rows } = await pool.query(
-      `INSERT INTO users (name, email, password, role, verify_token, verify_token_expires, is_verified)
-       VALUES ($1,$2,$3,$4,$5,$6,false) RETURNING id, name, email, role`,
-      [name.trim(), email, hashed, safeRole, verifyToken, verifyExpiry]
+      `INSERT INTO users (name, email, password, role)
+       VALUES ($1,$2,$3,$4) RETURNING id, name, email, role`,
+      [name.trim(), email, hashed, safeRole]
     );
 
     const user  = rows[0];
     const token = generateToken(user);
 
-    // Send verification email (non-blocking)
-    const verifyUrl = `${process.env.CLIENT_URL}/verify-email?token=${verifyToken}`;
-    sendEmail(email, 'Verify your LinguaBridge account', `
-      <div style="font-family:sans-serif;max-width:500px;margin:0 auto">
-        <h2 style="color:#2563EB">Welcome to LinguaBridge! 🎓</h2>
-        <p>Hi ${name}, please verify your email address to get started.</p>
-        <a href="${verifyUrl}" style="display:inline-block;background:#2563EB;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin:16px 0">
-          Verify Email
-        </a>
-        <p style="color:#6B7280;font-size:0.875rem">Link expires in 24 hours.</p>
-      </div>
-    `);
-
-    res.status(201).json({ message: 'Registration successful! Please check your email to verify your account.', token, user: { id: user.id, name: user.name, email: user.email, role: user.role, is_verified: false } });
+    res.status(201).json({ message: 'Registration successful', token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
   } catch (err) { next(err); }
 });
 
@@ -88,13 +78,18 @@ router.post('/login', [
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
 
     const { email, password } = req.body;
+
+    if (!isGmail(email)) return res.status(422).json({ message: 'Only Gmail addresses (@gmail.com) are accepted.' });
+
     const { rows } = await pool.query(
       'SELECT id, name, email, password, role, is_verified, avatar_url FROM users WHERE email = $1',
       [email]
     );
     if (!rows.length) return res.status(401).json({ message: 'Invalid email or password' });
 
-    const user    = rows[0];
+    const user = rows[0];
+    // Google OAuth accounts have no password — they must sign in via Google
+    if (!user.password) return res.status(401).json({ message: 'This account uses Google Sign-In. Please use the "Continue with Google" button.' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 

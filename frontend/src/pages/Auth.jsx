@@ -150,7 +150,7 @@ function Auth() {
                   <div className="form-group">
                     <label htmlFor="role">I am a</label>
                     <select id="role" name="role" value={formData.role} onChange={handleChange}
-                      style={{ padding: '0.75rem', border: '1px solid #E8EDF2', borderRadius: '8px', fontSize: '1rem', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
+                      style={{ padding: '0.75rem', border: '1px solid #E8EDF2', borderRadius: '8px', fontSize: '1rem', fontFamily: 'inherit', background: 'var(--white)', color: 'var(--gray-900)', cursor: 'pointer' }}>
                       <option value="student">Student</option>
                       <option value="instructor">Instructor</option>
                     </select>

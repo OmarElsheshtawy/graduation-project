@@ -3,14 +3,15 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import Chatbot from './Chatbot'
 import { useAuth } from '../auth/AuthContext'
 import { defaultDashboardPath, ROLES } from '../auth/rbac'
+import { ThemeToggle } from '../pages/ThemeContext'
 
 const NAV_LINKS = [
-  { to: '/home',        label: 'Home' },
-  { to: '/courses',     label: 'Courses' },      // → CoursesHub
-  { to: '/community',   label: 'Community' },
-  { to: '/leaderboard', label: 'Leaderboard' },
-  { to: '/about',       label: 'About' },
-  { to: '/contact',     label: 'Contact' },
+  { to: '/',            label: 'Home',        public: true  },
+  { to: '/courses',     label: 'Courses',     public: false },
+  { to: '/community',   label: 'Community',   public: false },
+  { to: '/leaderboard', label: 'Leaderboard', public: false },
+  { to: '/about',       label: 'About',       public: true  },
+  { to: '/contact',     label: 'Contact',     public: true  },
 ]
 
 export default function Layout() {
@@ -56,10 +57,10 @@ export default function Layout() {
         <div className="nav-container">
 
           {/* Logo */}
-          <Link to="/home" className="nav-logo">LinguaBridge</Link>
+          <Link to="/" className="nav-logo">LinguaBridge</Link>
 
           {/* Search */}
-          <form onSubmit={handleSearch} className="nav-search" style={{ display: 'flex' }}>
+          <form onSubmit={handleSearch} className="nav-search">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
@@ -68,17 +69,27 @@ export default function Layout() {
 
           {/* Nav links */}
           <ul className="nav-links">
-            {NAV_LINKS.map(l => (
-              <li key={l.to}>
-                <Link to={l.to} className={location.pathname === l.to || (l.to === '/courses' && location.pathname.startsWith('/learn')) ? 'active' : ''}>
-                  {l.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map(l => {
+              const isActive = l.to === '/' ? location.pathname === '/' : location.pathname === l.to || (l.to === '/courses' && location.pathname.startsWith('/learn'))
+              const handleClick = (e) => {
+                if (!l.public && !isAuth) {
+                  e.preventDefault()
+                  navigate('/login')
+                }
+              }
+              return (
+                <li key={l.to}>
+                  <Link to={l.to} className={isActive ? 'active' : ''} onClick={handleClick}>
+                    {l.label}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
 
           {/* Actions */}
           <div className="nav-actions">
+            <ThemeToggle />
             {isAuth ? (
               <div style={{ position: 'relative' }} ref={dropdownRef}>
                 <div className="nav-avatar" onClick={() => setDropdownOpen(d => !d)}
@@ -171,9 +182,13 @@ export default function Layout() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div style={{ background: 'white', borderTop: '1px solid var(--gray-100)', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--white)', borderTop: '1px solid var(--gray-100)', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 4, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 999 }}>
             {NAV_LINKS.map(l => (
-              <Link key={l.to} to={l.to} onClick={() => setMenuOpen(false)}
+              <Link key={l.to} to={l.to}
+                onClick={(e) => {
+                  setMenuOpen(false)
+                  if (!l.public && !isAuth) { e.preventDefault(); navigate('/login') }
+                }}
                 style={{ padding: '10px 12px', borderRadius: 8, color: location.pathname === l.to ? 'var(--primary)' : 'var(--gray-700)', fontWeight: 500, background: location.pathname === l.to ? 'var(--primary-light)' : 'transparent' }}>
                 {l.label}
               </Link>
