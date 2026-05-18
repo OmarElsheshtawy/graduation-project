@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
+
+const hasGoogleAuth = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
 import api from '../services/api'
 import { useAuth } from '../auth/AuthContext'
 import { defaultDashboardPath } from '../auth/rbac'
@@ -38,6 +40,17 @@ const GoogleIcon = () => (
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
   </svg>
 )
+
+// ── Google register button (separate component so hook is always called inside provider) ──
+function GoogleRegisterBtn({ onSuccess, onError, isLoading }) {
+  const login = useGoogleLogin({ onSuccess, onError })
+  return (
+    <button type="button" className="auth-social-btn" onClick={() => login()} disabled={isLoading}>
+      <GoogleIcon />
+      Continue with Google
+    </button>
+  )
+}
 
 // ── Toast ──────────────────────────────────────────────────────────────────────
 
@@ -125,25 +138,22 @@ function Register() {
 
   // ── OAuth helpers ──────────────────────────────────────────────────────────
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async ({ access_token }) => {
-      setIsLoading(true)
-      try {
-        const { data } = await api.post('/auth/google', { access_token })
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        setUser(data.user)
-        addToast('Signed up with Google!', 'success')
-        const dest = data.user.role === 'student' ? '/placement-quiz' : defaultDashboardPath(data.user.role)
-        setTimeout(() => navigate(dest), 800)
-      } catch (err) {
-        addToast(err.response?.data?.message || 'Google sign-in failed', 'error')
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    onError: () => addToast('Google sign-in was cancelled or failed', 'error'),
-  })
+  const handleGoogleSuccess = async ({ access_token }) => {
+    setIsLoading(true)
+    try {
+      const { data } = await api.post('/auth/google', { access_token })
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+      addToast('Signed up with Google!', 'success')
+      const dest = data.user.role === 'student' ? '/placement-quiz' : defaultDashboardPath(data.user.role)
+      setTimeout(() => navigate(dest), 800)
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Google sign-in failed', 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // ── Form ───────────────────────────────────────────────────────────────────
 
@@ -221,15 +231,15 @@ function Register() {
           <p className="auth-page-subtitle">Start your English learning journey today</p>
         </div>
 
-        {/* Social sign-up */}
-        <div className="auth-social-btns">
-          <button type="button" className="auth-social-btn" onClick={() => loginWithGoogle()} disabled={isLoading}>
-            <GoogleIcon />
-            Continue with Google
-          </button>
-        </div>
-
-        <div className="auth-or-divider">or sign up with email</div>
+        {/* Social sign-up — only shown when Google OAuth is configured */}
+        {hasGoogleAuth && (
+          <>
+            <div className="auth-social-btns">
+              <GoogleRegisterBtn onSuccess={handleGoogleSuccess} onError={() => addToast('Google sign-in failed', 'error')} isLoading={isLoading} />
+            </div>
+            <div className="auth-or-divider">or sign up with email</div>
+          </>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
