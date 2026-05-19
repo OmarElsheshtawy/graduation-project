@@ -28,7 +28,6 @@ import PlacementQuiz  from './pages/PlacementQuiz'
 import CourseQuiz     from './pages/CourseQuiz'
 import Bookmarks      from './pages/Bookmarks'
 import Analytics      from './pages/Analytics'
-import Pricing        from './pages/Pricing'
 import PaymentSuccess from './pages/PaymentSuccess'
 
 // Learn system (no navbar/footer — immersive)
@@ -79,7 +78,6 @@ export default function App() {
           <Route path="/quiz/:courseId" element={<QuizPlayer />} />
           <Route path="/bookmarks"     element={<Bookmarks />} />
           <Route path="/analytics"     element={<Analytics />} />
-          <Route path="/pricing"       element={<Pricing />} />
         </Route>
 
         {/* ── Student Dashboard ── */}

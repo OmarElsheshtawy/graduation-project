@@ -34,15 +34,15 @@ function Counter({ end, suffix = '', duration = 2000 }) {
 
 const COURSES = [
   { id: 'beginner',    icon: '🌱', title: 'Beginner English',          level: 'A1–A2',         price: 'Free', weeks: 8,  color: '#22C55E', students: 3200 },
-  { id: 'elementary', icon: '🌿', title: 'Elementary English',        level: 'A2–B1',         price: '$29',  weeks: 8,  color: '#10B981', students: 2100 },
-  { id: 'intermediate',icon:'📘', title: 'Intermediate English',      level: 'B1–B2',         price: '$49',  weeks: 10, color: '#3B82F6', students: 2800 },
-  { id: 'advanced',   icon: '🔥', title: 'Advanced English',          level: 'C1–C2',         price: '$79',  weeks: 12, color: '#DC2626', students: 1900 },
-  { id: 'academic',   icon: '🎓', title: 'Academic English',          level: 'B2–C1',         price: '$69',  weeks: 10, color: '#6366F1', students: 1400 },
-  { id: 'american',   icon: '🇺🇸', title: 'American English',         level: 'B1–C1',         price: '$59',  weeks: 8,  color: '#EF4444', students: 1700 },
-  { id: 'travel',     icon: '✈️', title: 'Travel English',            level: 'A2–B2',         price: '$39',  weeks: 6,  color: '#F59E0B', students: 1600 },
-  { id: 'kids',       icon: '🎨', title: 'Kids English',              level: 'A1 (Ages 6–12)',price: '$19',  weeks: 8,  color: '#EC4899', students: 980  },
-  { id: 'freelancer', icon: '💼', title: 'English for Freelancers',   level: 'B1–C1',         price: '$59',  weeks: 10, color: '#8B5CF6', students: 1250 },
-  { id: 'toefl',      icon: '📝', title: 'TOEFL Preparation',         level: 'B2–C1',         price: '$79',  weeks: 12, color: '#0EA5E9', students: 2300 },
+  { id: 'elementary', icon: '🌿', title: 'Elementary English',        level: 'A2–B1',         price: 'Free',  weeks: 8,  color: '#10B981', students: 2100 },
+  { id: 'intermediate',icon:'📘', title: 'Intermediate English',      level: 'B1–B2',         price: 'Free',  weeks: 10, color: '#3B82F6', students: 2800 },
+  { id: 'advanced',   icon: '🔥', title: 'Advanced English',          level: 'C1–C2',         price: 'Free',  weeks: 12, color: '#DC2626', students: 1900 },
+  { id: 'academic',   icon: '🎓', title: 'Academic English',          level: 'B2–C1',         price: 'Free',  weeks: 10, color: '#6366F1', students: 1400 },
+  { id: 'american',   icon: '🇺🇸', title: 'American English',         level: 'B1–C1',         price: 'Free',  weeks: 8,  color: '#EF4444', students: 1700 },
+  { id: 'travel',     icon: '✈️', title: 'Travel English',            level: 'A2–B2',         price: 'Free',  weeks: 6,  color: '#F59E0B', students: 1600 },
+  { id: 'kids',       icon: '🎨', title: 'Kids English',              level: 'A1 (Ages 6–12)',price: 'Free',  weeks: 8,  color: '#EC4899', students: 980  },
+  { id: 'freelancer', icon: '💼', title: 'English for Freelancers',   level: 'B1–C1',         price: 'Free',  weeks: 10, color: '#8B5CF6', students: 1250 },
+  { id: 'toefl',      icon: '📝', title: 'TOEFL Preparation',         level: 'B2–C1',         price: 'Free',  weeks: 12, color: '#0EA5E9', students: 2300 },
 ]
 
 const FEATURES = [
@@ -195,7 +195,7 @@ export default function Home() {
                         <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.title}</div>
                         <div style={{ fontSize: '0.67rem', color: 'rgba(255,255,255,0.45)' }}>{c.level} · {c.students.toLocaleString()} students</div>
                       </div>
-                      <div style={{ fontWeight: 700, fontSize: '0.78rem', color: c.price === 'Free' ? '#4ADE80' : '#60A5FA', flexShrink: 0 }}>{c.price}</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.78rem', color: '#4ADE80', flexShrink: 0 }}>Free</div>
                     </div>
                   ))}
                 </div>
@@ -292,11 +292,9 @@ export default function Home() {
                   <div style={{ position: 'absolute', top: 14, left: 14, background: cardBg, borderRadius: 8, padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700, color: c.color }}>
                     {c.level}
                   </div>
-                  {c.price === 'Free' && (
-                    <div style={{ position: 'absolute', top: 14, right: 14, background: '#DCFCE7', borderRadius: 8, padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700, color: '#16A34A' }}>
-                      FREE
-                    </div>
-                  )}
+                  <div style={{ position: 'absolute', top: 14, right: 14, background: '#DCFCE7', borderRadius: 8, padding: '4px 12px', fontSize: '0.72rem', fontWeight: 700, color: '#16A34A' }}>
+                    FREE
+                  </div>
                 </div>
                 {/* Body */}
                 <div style={{ padding: '20px 22px 22px' }}>
@@ -307,8 +305,8 @@ export default function Home() {
                     <span>⭐ 4.8</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.15rem', color: c.price === 'Free' ? '#16A34A' : text }}>
-                      {c.price}
+                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.15rem', color: '#16A34A' }}>
+                      Free
                     </span>
                     <button
                       style={{ background: `linear-gradient(135deg, ${c.color}, ${c.color}cc)`, color: 'white', border: 'none', borderRadius: 10, padding: '9px 20px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'inherit' }}

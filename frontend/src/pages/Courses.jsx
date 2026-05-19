@@ -130,7 +130,7 @@ function Courses() {
                     </div>
                   </div>
                   <div className="course-footer">
-                    <div className="course-price">{parseFloat(course.price) === 0 ? 'Free' : `$${parseFloat(course.price).toFixed(0)}`}</div>
+                    <div className="course-price" style={{ color: 'var(--success)' }}>Free</div>
                     {isStudent ? (
                       enrolledIds.has(course.id) ? (
                         <button className="btn-secondary" disabled style={{ opacity: 0.7 }}>✓ Enrolled</button>

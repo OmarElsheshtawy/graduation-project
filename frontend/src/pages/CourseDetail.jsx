@@ -117,8 +117,8 @@ export default function CourseDetail() {
                 📖
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 20 }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, color: parseFloat(course.price) === 0 ? 'var(--success)' : 'var(--gray-900)' }}>
-                  {parseFloat(course.price) === 0 ? 'Free' : `$${parseFloat(course.price).toFixed(0)}`}
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, color: 'var(--success)' }}>
+                  Free
                 </span>
               </div>
 
