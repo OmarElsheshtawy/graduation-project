@@ -21,6 +21,7 @@ import CoursesHub     from './pages/CoursesHub'
 import CourseDetail   from './pages/CourseDetail'
 import Community      from './pages/Community'
 import Forums         from './pages/Forums'
+import ForumPost      from './pages/ForumPost'
 import Contact        from './pages/Contact'
 import Login          from './pages/Login'
 import Register       from './pages/Register'
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/courses/:id"   element={<CourseDetail />} />
           <Route path="/community"     element={<Community />} />
           <Route path="/forums"        element={<Forums />} />
+          <Route path="/forums/:id"    element={<ForumPost />} />
           <Route path="/contact"       element={<Contact />} />
           <Route path="/profile"       element={<Profile />} />
           <Route path="/leaderboard"   element={<Leaderboard />} />

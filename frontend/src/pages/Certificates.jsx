@@ -5,8 +5,8 @@ import api from '../services/api'
 export default function Certificates() {
   const navigate = useNavigate()
   const [enrollments, setEnrollments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [printing, setPrinting] = useState(null)
+  const [loading,     setLoading]     = useState(true)
+  const [downloading, setDownloading] = useState(null)
 
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
@@ -18,12 +18,125 @@ export default function Certificates() {
       .finally(() => setLoading(false))
   }, [])
 
-  const handlePrint = (cert) => {
-    setPrinting(cert)
-    setTimeout(() => {
-      window.print()
-      setPrinting(null)
-    }, 300)
+  const handleDownloadPDF = async (cert) => {
+    setDownloading(cert.id)
+    try {
+      const { default: jsPDF } = await import('jspdf')
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+      const W = 297, H = 210
+
+      // Background gradient simulation
+      doc.setFillColor(240, 247, 255)
+      doc.rect(0, 0, W, H, 'F')
+
+      // Gold border
+      doc.setDrawColor(212, 175, 55)
+      doc.setLineWidth(3)
+      doc.rect(10, 10, W - 20, H - 20)
+      doc.setLineWidth(1)
+      doc.rect(14, 14, W - 28, H - 28)
+
+      // Corner ornaments
+      const corners = [[14,14],[W-14,14],[14,H-14],[W-14,H-14]]
+      corners.forEach(([cx,cy]) => {
+        doc.setFillColor(212,175,55)
+        doc.circle(cx, cy, 3, 'F')
+      })
+
+      // Header
+      doc.setFont('helvetica','bold')
+      doc.setFontSize(11)
+      doc.setTextColor(100,80,20)
+      doc.text('LINGUABRIDGE ACADEMY', W/2, 35, { align: 'center' })
+
+      doc.setFontSize(28)
+      doc.setTextColor(37, 99, 235)
+      doc.text('Certificate of Completion', W/2, 52, { align: 'center' })
+
+      // Divider line
+      doc.setDrawColor(212,175,55)
+      doc.setLineWidth(0.8)
+      doc.line(60, 58, W-60, 58)
+
+      // Body text
+      doc.setFont('helvetica','normal')
+      doc.setFontSize(12)
+      doc.setTextColor(80,80,80)
+      doc.text('This is to certify that', W/2, 72, { align: 'center' })
+
+      // Student name
+      doc.setFont('helvetica','bolditalic')
+      doc.setFontSize(32)
+      doc.setTextColor(15,23,42)
+      doc.text(user?.name || 'Student', W/2, 92, { align: 'center' })
+
+      // Underline for name
+      const nameWidth = doc.getTextWidth(user?.name || 'Student')
+      doc.setDrawColor(37,99,235)
+      doc.setLineWidth(0.5)
+      doc.line(W/2 - nameWidth/2, 95, W/2 + nameWidth/2, 95)
+
+      doc.setFont('helvetica','normal')
+      doc.setFontSize(12)
+      doc.setTextColor(80,80,80)
+      doc.text('has successfully completed the course', W/2, 107, { align: 'center' })
+
+      // Course name
+      doc.setFont('helvetica','bold')
+      doc.setFontSize(20)
+      doc.setTextColor(37,99,235)
+      doc.text(cert.title, W/2, 122, { align: 'center' })
+
+      // Divider
+      doc.setDrawColor(212,175,55)
+      doc.setLineWidth(0.5)
+      doc.line(80, 130, W-80, 130)
+
+      // Footer info
+      const year = new Date(cert.enrolled_at).getFullYear()
+      const certId = `CERT-LB-${String(cert.id).padStart(6,'0')}`
+
+      doc.setFont('helvetica','bold')
+      doc.setFontSize(10)
+      doc.setTextColor(40,40,40)
+
+      // Instructor signature block
+      doc.text(cert.instructor_name || 'Instructor', 80, 152, { align: 'center' })
+      doc.setFont('helvetica','normal')
+      doc.setTextColor(100,100,100)
+      doc.text('Course Instructor', 80, 159, { align: 'center' })
+      doc.setDrawColor(180,180,180)
+      doc.line(50, 148, 110, 148)
+
+      // Platform signature block
+      doc.setFont('helvetica','bold')
+      doc.setTextColor(40,40,40)
+      doc.text('LinguaBridge', W/2, 152, { align: 'center' })
+      doc.setFont('helvetica','normal')
+      doc.setTextColor(100,100,100)
+      doc.text('Learning Platform', W/2, 159, { align: 'center' })
+      doc.line(W/2-30, 148, W/2+30, 148)
+
+      // Year
+      doc.setFont('helvetica','bold')
+      doc.setTextColor(40,40,40)
+      doc.text(String(year), W-80, 152, { align: 'center' })
+      doc.setFont('helvetica','normal')
+      doc.setTextColor(100,100,100)
+      doc.text('Year Completed', W-80, 159, { align: 'center' })
+      doc.line(W-110, 148, W-50, 148)
+
+      // Certificate ID at bottom
+      doc.setFontSize(8)
+      doc.setTextColor(160,160,160)
+      doc.text(certId, W/2, 185, { align: 'center' })
+
+      doc.save(`${certId}.pdf`)
+    } catch (err) {
+      console.error('PDF generation failed:', err)
+    } finally {
+      setDownloading(null)
+    }
   }
 
   const certs = enrollments
@@ -107,11 +220,14 @@ export default function Certificates() {
 
                     {/* Actions */}
                     <div style={{ display: 'flex', gap: 12 }}>
-                      <button onClick={() => handlePrint(cert)} className="btn btn-primary" style={{ flex: 1 }}>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                        Download PDF
+                      <button onClick={() => handleDownloadPDF(cert)} disabled={downloading === cert.id} className="btn btn-primary" style={{ flex: 1 }}>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                        {downloading === cert.id ? 'Generating...' : 'Download PDF'}
                       </button>
-                      <button className="btn btn-secondary">
+                      <button className="btn btn-secondary" onClick={() => {
+                        if (navigator.share) navigator.share({ title: `${cert.title} Certificate`, text: `I completed ${cert.title} on LinguaBridge!`, url: window.location.href })
+                        else { navigator.clipboard.writeText(window.location.href); }
+                      }}>
                         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                         Share
                       </button>

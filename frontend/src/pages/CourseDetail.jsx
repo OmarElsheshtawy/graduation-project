@@ -5,12 +5,22 @@ import api from '../services/api'
 export default function CourseDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [course, setCourse] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [course,    setCourse]    = useState(null)
+  const [loading,   setLoading]   = useState(true)
   const [enrolling, setEnrolling] = useState(false)
-  const [enrolled, setEnrolled] = useState(false)
+  const [enrolled,  setEnrolled]  = useState(false)
+  const [bookmarked, setBookmarked] = useState(false)
+  const [bookmarking, setBookmarking] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
-  const [toast, setToast] = useState(null)
+  const [toast,     setToast]     = useState(null)
+
+  // Reviews state
+  const [reviews,       setReviews]       = useState([])
+  const [avgRating,     setAvgRating]     = useState(null)
+  const [myRating,      setMyRating]      = useState(0)
+  const [myComment,     setMyComment]     = useState('')
+  const [submittingRev, setSubmittingRev] = useState(false)
+  const [hasReviewed,   setHasReviewed]   = useState(false)
 
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   const isStudent = user?.role === 'student'
@@ -22,15 +32,10 @@ export default function CourseDetail() {
     { week: 'Week 7–8', title: 'Writing & Review', lessons: ['Essay & email writing', 'Formal vs informal tone', 'Editing techniques', 'Final assessment & review'] },
   ]
 
-  const REVIEWS = [
-    { name: 'Ahmed Hassan', rating: 5, date: '2 weeks ago', text: 'Excellent course! The structured approach made it easy to follow and the instructor explains everything clearly.' },
-    { name: 'Maria Silva', rating: 5, date: '1 month ago', text: 'This course exceeded my expectations. I improved so much in just 8 weeks. Highly recommended!' },
-    { name: 'Yuki Tanaka', rating: 4, date: '1 month ago', text: 'Very good content and well organized. Would love more speaking practice exercises but overall fantastic.' },
-  ]
-
   useEffect(() => {
     fetchCourse()
-    if (isStudent) checkEnrollment()
+    fetchReviews()
+    if (isStudent) { checkEnrollment(); checkBookmark() }
   }, [id])
 
   const fetchCourse = async () => {
@@ -49,6 +54,60 @@ export default function CourseDetail() {
       const { data } = await api.get('/enrollments/my')
       setEnrolled(data.enrollments.some(e => e.id === parseInt(id)))
     } catch {}
+  }
+
+  const checkBookmark = async () => {
+    try {
+      const { data } = await api.get(`/bookmarks/check/${id}`)
+      setBookmarked(data.bookmarked)
+    } catch {}
+  }
+
+  const fetchReviews = async () => {
+    try {
+      const { data } = await api.get(`/reviews/${id}`)
+      setReviews(data.reviews)
+      setAvgRating(data.avgRating)
+      if (user) {
+        const mine = data.reviews.find(r => r.reviewer_name === user.name)
+        if (mine) { setHasReviewed(true); setMyRating(mine.rating); setMyComment(mine.comment || '') }
+      }
+    } catch {}
+  }
+
+  const handleBookmark = async () => {
+    if (!user) { navigate('/login'); return }
+    setBookmarking(true)
+    try {
+      if (bookmarked) {
+        await api.delete(`/bookmarks/${id}`)
+        setBookmarked(false)
+        showToast('Bookmark removed', 'success')
+      } else {
+        await api.post(`/bookmarks/${id}`)
+        setBookmarked(true)
+        showToast('🔖 Course bookmarked!', 'success')
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to update bookmark', 'error')
+    } finally {
+      setBookmarking(false)
+    }
+  }
+
+  const handleSubmitReview = async () => {
+    if (!myRating) { showToast('Please select a rating', 'error'); return }
+    setSubmittingRev(true)
+    try {
+      await api.post(`/reviews/${id}`, { rating: myRating, comment: myComment })
+      showToast('✅ Review submitted!', 'success')
+      setHasReviewed(true)
+      fetchReviews()
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to submit review', 'error')
+    } finally {
+      setSubmittingRev(false)
+    }
   }
 
   const handleEnroll = async () => {
@@ -90,9 +149,13 @@ export default function CourseDetail() {
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 48, alignItems: 'start' }}>
             <div>
-              <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
                 <span className="badge badge-primary">{course.level}</span>
                 {parseFloat(course.price) === 0 && <span className="badge badge-success">Free</span>}
+                <button onClick={handleBookmark} disabled={bookmarking}
+                  style={{ marginLeft: 'auto', background: bookmarked ? '#FEF3C7' : 'rgba(255,255,255,0.12)', color: bookmarked ? '#92400E' : 'white', border: bookmarked ? '1px solid #F59E0B' : '1px solid rgba(255,255,255,0.3)', borderRadius: 10, padding: '6px 14px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                  {bookmarked ? '🔖 Bookmarked' : '🔖 Bookmark'}
+                </button>
               </div>
               <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 700, color: 'white', marginBottom: 16, lineHeight: 1.2 }}>
                 {course.title}
@@ -102,8 +165,8 @@ export default function CourseDetail() {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ color: '#F59E0B', fontWeight: 700 }}>⭐ 4.8</span>
-                  <span>({course.students_count || 0} students)</span>
+                  <span style={{ color: '#F59E0B', fontWeight: 700 }}>⭐ {avgRating || '—'}</span>
+                  <span>({reviews.length} review{reviews.length !== 1 ? 's' : ''} · {course.students_count || 0} students)</span>
                 </div>
                 <span>⏱ {course.duration}</span>
                 <span>👨‍🏫 {course.instructor_name}</span>
@@ -231,43 +294,86 @@ export default function CourseDetail() {
           {/* Reviews */}
           {activeTab === 'reviews' && (
             <div>
+              {/* Rating summary */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32, padding: 24, background: 'var(--gray-50)', borderRadius: 12 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '3.5rem', fontWeight: 700, color: 'var(--gray-900)', lineHeight: 1 }}>4.8</div>
-                  <div style={{ color: '#F59E0B', fontSize: '1.1rem', margin: '6px 0' }}>★★★★★</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>Course Rating</div>
+                <div style={{ textAlign: 'center', minWidth: 80 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '3.5rem', fontWeight: 700, color: 'var(--gray-900)', lineHeight: 1 }}>
+                    {avgRating || '—'}
+                  </div>
+                  <div style={{ color: '#F59E0B', fontSize: '1.1rem', margin: '6px 0' }}>
+                    {'★'.repeat(Math.round(avgRating || 0))}{'☆'.repeat(5 - Math.round(avgRating || 0))}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-400)' }}>{reviews.length} review{reviews.length !== 1 ? 's' : ''}</div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  {[5,4,3,2,1].map(star => (
-                    <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                      <div style={{ flex: 1, height: 8, background: 'var(--gray-200)', borderRadius: 4, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', background: '#F59E0B', width: star === 5 ? '80%' : star === 4 ? '15%' : '5%', borderRadius: 4 }} />
+                  {[5,4,3,2,1].map(star => {
+                    const count = reviews.filter(r => r.rating === star).length
+                    const pct   = reviews.length ? Math.round((count / reviews.length) * 100) : 0
+                    return (
+                      <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--gray-500)', width: 20 }}>{star}★</span>
+                        <div style={{ flex: 1, height: 8, background: 'var(--gray-200)', borderRadius: 4, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', background: '#F59E0B', width: `${pct}%`, borderRadius: 4, transition: 'width 0.4s' }} />
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--gray-400)', width: 28 }}>{pct}%</span>
                       </div>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--gray-500)', width: 20 }}>{star}★</span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {REVIEWS.map((review, i) => (
-                  <div key={i} className="card" style={{ padding: 20 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
-                      <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
-                        {review.name.charAt(0)}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-900)' }}>{review.name}</span>
-                          <span style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{review.date}</span>
-                        </div>
-                        <div style={{ color: '#F59E0B', fontSize: '0.85rem', margin: '4px 0' }}>{'★'.repeat(review.rating)}</div>
-                      </div>
-                    </div>
-                    <p style={{ color: 'var(--gray-600)', fontSize: '0.875rem', lineHeight: 1.6 }}>{review.text}</p>
+              {/* Submit review (enrolled students only, not yet reviewed) */}
+              {isStudent && enrolled && !hasReviewed && (
+                <div className="card" style={{ padding: 24, marginBottom: 24, border: '2px solid var(--primary-light)' }}>
+                  <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', marginBottom: 16, color: 'var(--gray-900)' }}>Rate This Course</h3>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                    {[1,2,3,4,5].map(star => (
+                      <button key={star} onClick={() => setMyRating(star)}
+                        style={{ fontSize: '1.8rem', background: 'none', border: 'none', cursor: 'pointer', color: star <= myRating ? '#F59E0B' : '#D1D5DB', transition: 'color 0.15s', padding: 0 }}>★</button>
+                    ))}
+                    {myRating > 0 && <span style={{ color: 'var(--gray-500)', fontSize: '0.875rem', alignSelf: 'center', marginLeft: 4 }}>{['','Poor','Fair','Good','Very Good','Excellent'][myRating]}</span>}
                   </div>
-                ))}
-              </div>
+                  <textarea value={myComment} onChange={e => setMyComment(e.target.value)}
+                    placeholder="Share your experience with this course (optional)..."
+                    rows={3} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid var(--gray-200)', borderRadius: 10, fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', resize: 'vertical', marginBottom: 12, boxSizing: 'border-box' }} />
+                  <button onClick={handleSubmitReview} disabled={submittingRev || !myRating} className="btn btn-primary">
+                    {submittingRev ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              )}
+              {isStudent && enrolled && hasReviewed && (
+                <div style={{ padding: '12px 16px', background: '#DCFCE7', borderRadius: 10, marginBottom: 24, fontSize: '0.875rem', color: '#166534', fontWeight: 600 }}>
+                  ✅ You've already reviewed this course. Thank you!
+                </div>
+              )}
+
+              {/* Reviews list */}
+              {reviews.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray-400)' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>💬</div>
+                  <p>No reviews yet. Be the first to review this course!</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {reviews.map((review) => (
+                    <div key={review.id} className="card" style={{ padding: 20 }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
+                          {review.reviewer_name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                            <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--gray-900)' }}>{review.reviewer_name}</span>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--gray-400)' }}>{new Date(review.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <div style={{ color: '#F59E0B', fontSize: '0.9rem', margin: '4px 0' }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
+                        </div>
+                      </div>
+                      {review.comment && <p style={{ color: 'var(--gray-600)', fontSize: '0.875rem', lineHeight: 1.6, margin: 0 }}>{review.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -175,7 +175,7 @@ export default function Forums() {
                 ) : posts.map(post => {
                   const cat = CATEGORIES.find(c => c.id === post.category)
                   return (
-                    <div key={post.id} style={{ background: cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
+                    <div key={post.id} onClick={() => navigate(`/forums/${post.id}`)} style={{ background: cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
                       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.08)'}
                       onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
