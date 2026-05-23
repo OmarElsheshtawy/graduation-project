@@ -99,6 +99,77 @@ export function useToast() {
   return { show, ToastContainer }
 }
 
+// ── Notifications Page (full view) ────────────────────────────────────────
+export default function NotificationsPage() {
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
+  const { dark } = useTheme()
+  const bg      = dark ? '#111827' : '#F9FAFB'
+  const cardBg  = dark ? '#1F2937' : 'white'
+  const border  = dark ? '#374151' : '#F3F4F6'
+  const text    = dark ? '#F9FAFB' : '#111827'
+  const muted   = dark ? '#9CA3AF' : '#6B7280'
+  const faint   = dark ? '#6B7280' : '#9CA3AF'
+  const unreadBg = dark ? '#1E3A5F' : '#EFF6FF'
+
+  const typeColors = { achievement: '#F59E0B', lesson: '#2563EB', community: '#22C55E', course: '#8B5CF6', system: '#EF4444' }
+
+  return (
+    <div style={{ minHeight: '100vh', background: bg, paddingBottom: 60 }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+          <div>
+            <h1 style={{ fontFamily: 'var(--font-display,sans-serif)', fontSize: '1.75rem', fontWeight: 700, color: text, marginBottom: 4 }}>
+              Notifications
+            </h1>
+            <p style={{ color: muted, fontSize: '0.875rem' }}>
+              {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
+            </p>
+          </div>
+          {unreadCount > 0 && (
+            <button onClick={markAllRead}
+              style={{ padding: '8px 18px', background: '#2563EB', color: 'white', border: 'none', borderRadius: 10, fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Mark all read
+            </button>
+          )}
+        </div>
+
+        {/* List */}
+        {notifications.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px', background: cardBg, borderRadius: 16, border: `1px solid ${border}` }}>
+            <div style={{ fontSize: '3rem', marginBottom: 12 }}>🔔</div>
+            <h3 style={{ color: text, fontFamily: 'var(--font-display,sans-serif)', marginBottom: 8 }}>No notifications yet</h3>
+            <p style={{ color: muted, fontSize: '0.875rem' }}>You're all caught up. Check back later!</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {notifications.map(notif => (
+              <div key={notif.id} onClick={() => markRead(notif.id)}
+                style={{ display: 'flex', gap: 14, padding: '16px 20px', background: notif.read ? cardBg : unreadBg, borderRadius: 14, border: `1px solid ${border}`, cursor: 'pointer', transition: 'all 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateX(4px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: (typeColors[notif.type] || '#6B7280') + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', flexShrink: 0 }}>
+                  {notif.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontWeight: notif.read ? 500 : 700, color: text, fontSize: '0.9rem' }}>{notif.title}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.75rem', color: faint }}>{notif.time}</span>
+                      {!notif.read && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563EB' }} />}
+                    </div>
+                  </div>
+                  <p style={{ color: muted, fontSize: '0.82rem', lineHeight: 1.5, margin: 0 }}>{notif.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Notification Bell + Dropdown ───────────────────────────────────────────
 export function NotificationBell() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()

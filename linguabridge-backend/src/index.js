@@ -1,9 +1,26 @@
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
+const express   = require('express');
+const cors      = require('cors');
+const helmet    = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app  = express();
 const PORT = process.env.PORT || 5001;
+
+// ── Security headers ───────────────────────────────────────────────────────
+app.use(helmet({
+  crossOriginEmbedderPolicy: false, // allow Vercel iframes / embeds
+  contentSecurityPolicy: false,     // managed by frontend build
+}));
+
+// ── Rate limiting ──────────────────────────────────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,                   // max 20 auth attempts per IP per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many attempts from this IP, please try again in 15 minutes.' },
+});
 
 // ── Middleware ─────────────────────────────────────────────────────────────
 const allowedOrigins = [
@@ -25,15 +42,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ── Routes ─────────────────────────────────────────────────────────────────
-app.use('/api/auth',        require('./routes/auth'));
-app.use('/api/auth',        require('./routes/oauth'));
-app.use('/api/courses',     require('./routes/courses'));
-app.use('/api/enrollments', require('./routes/enrollments'));
-app.use('/api/instructor',  require('./routes/instructor'));
-app.use('/api/analytics',   require('./routes/analytics'));
-app.use('/api/admin',       require('./routes/admin'));
-app.use('/api/contact',     require('./routes/contact'));
-app.use('/api/chat',        require('./routes/chat'));
+app.use('/api/auth',         authLimiter);          // rate-limit all auth routes
+app.use('/api/auth',         require('./routes/auth'));
+app.use('/api/auth',         require('./routes/oauth'));
+app.use('/api/auth',         require('./routes/passwordReset'));
+app.use('/api/courses',      require('./routes/courses'));
+app.use('/api/enrollments',  require('./routes/enrollments'));
+app.use('/api/instructor',   require('./routes/instructor'));
+app.use('/api/analytics',    require('./routes/analytics'));
+app.use('/api/gamification', require('./routes/gamification'));
+app.use('/api/admin',        require('./routes/admin'));
+app.use('/api/contact',      require('./routes/contact'));
+app.use('/api/chat',         require('./routes/chat'));
 
 // ── Health check ───────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

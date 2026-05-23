@@ -9,6 +9,11 @@ import Auth           from './pages/Auth'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword  from './pages/ResetPassword'
 
+// Utility
+import { NotFound }          from './pages/ErrorPages'
+import AdminDashboard        from './pages/AdminDashboard'
+import NotificationsPage     from './pages/Notifications'
+
 // Main pages
 import Home           from './pages/Home'
 import About          from './pages/About'
@@ -93,6 +98,17 @@ export default function App() {
           <Route path="manage-courses"   element={<InstructorDashboard />} />
           <Route path="students"         element={<InstructorDashboard />} />
         </Route>
+
+        {/* ── Admin Dashboard ── */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+        {/* ── Notifications ── */}
+        <Route element={<Layout />}>
+          <Route path="/notifications" element={<NotificationsPage />} />
+        </Route>
+
+        {/* ── 404 catch-all ── */}
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
       </AuthProvider>
