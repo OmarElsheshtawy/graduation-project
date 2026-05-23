@@ -125,7 +125,7 @@ router.get('/instructor', protect, authorize('instructor','admin'), async (req, 
 });
 
 // ── GET /api/analytics/leaderboard ───────────────────────────────────────────
-router.get('/leaderboard', protect, async (req, res, next) => {
+router.get('/leaderboard', async (req, res, next) => {
   try {
     const { rows } = await pool.query(`
       SELECT

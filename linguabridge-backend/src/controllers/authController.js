@@ -3,6 +3,9 @@ const jwt     = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const pool    = require('../config/db');
 
+// Strip HTML tags to prevent XSS being stored in the DB
+const sanitize = (str) => typeof str === 'string' ? str.replace(/<[^>]*>/g, '').trim() : str;
+
 // ── Helper ────────────────────────────────────────────────────────────────────
 const generateToken = (user) =>
   jwt.sign(
@@ -36,7 +39,7 @@ const register = async (req, res, next) => {
       `INSERT INTO users (name, email, password, role)
        VALUES ($1, $2, $3, $4)
        RETURNING id, name, email, role, created_at`,
-      [name.trim(), email.toLowerCase(), hashedPassword, safeRole]
+      [sanitize(name), email.toLowerCase(), hashedPassword, safeRole]
     );
 
     const user  = rows[0];
@@ -114,7 +117,7 @@ const updateMe = async (req, res, next) => {
            avatar_url = COALESCE($2, avatar_url)
        WHERE id = $3
        RETURNING id, name, email, role, avatar_url`,
-      [name?.trim() || null, avatar_url || null, req.user.id]
+      [sanitize(name) || null, avatar_url || null, req.user.id]
     );
 
     res.json({ message: 'Profile updated', user: rows[0] });

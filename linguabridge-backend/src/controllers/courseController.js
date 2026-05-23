@@ -30,7 +30,7 @@ const getAllCourses = async (req, res, next) => {
       `SELECT c.id, c.title, c.description, c.level, c.duration, c.price,
               c.thumbnail_url, c.created_at,
               u.id AS instructor_id, u.name AS instructor_name,
-              COALESCE(AVG(NULL),0) AS rating,
+              COALESCE(AVG(0::numeric),0) AS rating,
               COUNT(DISTINCT e.student_id)::int AS students_count
        FROM courses c
        JOIN users u ON u.id = c.instructor_id
