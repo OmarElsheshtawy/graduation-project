@@ -25,15 +25,7 @@ router.get('/leaderboard', async (req, res, next) => {
       LIMIT $1
     `, [limit]);
 
-    // Find current user rank
-    const myRankRes = await pool.query(`
-      SELECT rank FROM (
-        SELECT id, RANK() OVER (ORDER BY xp DESC) AS rank
-        FROM users WHERE role = 'student'
-      ) r WHERE id = $1
-    `, [req.user.id]);
-
-    res.json({ leaderboard: rows, myRank: myRankRes.rows[0]?.rank || null });
+    res.json({ leaderboard: rows });
   } catch (err) { next(err); }
 });
 
