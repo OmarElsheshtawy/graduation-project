@@ -84,7 +84,7 @@ const getMyEnrollments = async (req, res, next) => {
 // ── PUT /api/progress/:courseId  (student) ────────────────────────────────────
 const updateProgress = async (req, res, next) => {
   try {
-    const { percent_complete } = req.body;
+    const { percent_complete, xp_earned = 0, time_spent_minutes = 0 } = req.body;
     const { courseId } = req.params;
 
     if (percent_complete === undefined || percent_complete < 0 || percent_complete > 100) {
@@ -100,23 +100,59 @@ const updateProgress = async (req, res, next) => {
       return res.status(403).json({ message: 'Not enrolled in this course' });
     }
 
-    const completedAt = percent_complete === 100 ? 'NOW()' : 'NULL';
-
+    // ── Update course progress ──────────────────────────────────────────────
     const { rows } = await pool.query(
-      `INSERT INTO progress (student_id, course_id, percent_complete, last_accessed_at, completed_at)
-       VALUES ($1, $2, $3, NOW(), ${completedAt})
+      `INSERT INTO progress (student_id, course_id, percent_complete, last_accessed_at, time_spent_minutes, completed_at)
+       VALUES ($1, $2, $3, NOW(), $4, CASE WHEN $3 = 100 THEN NOW() ELSE NULL END)
        ON CONFLICT (student_id, course_id) DO UPDATE
-         SET percent_complete  = EXCLUDED.percent_complete,
+         SET percent_complete  = GREATEST(progress.percent_complete, EXCLUDED.percent_complete),
              last_accessed_at  = NOW(),
+             time_spent_minutes = progress.time_spent_minutes + EXCLUDED.time_spent_minutes,
              completed_at      = CASE
-               WHEN EXCLUDED.percent_complete = 100 THEN NOW()
-               ELSE NULL
+               WHEN EXCLUDED.percent_complete = 100 THEN COALESCE(progress.completed_at, NOW())
+               ELSE progress.completed_at
              END
        RETURNING *`,
-      [req.user.id, courseId, percent_complete]
+      [req.user.id, courseId, percent_complete, time_spent_minutes]
     );
 
-    res.json({ message: 'Progress updated', progress: rows[0] });
+    // ── Update streak, XP, level ────────────────────────────────────────────
+    const userRes = await pool.query(
+      'SELECT streak_days, last_activity_date, xp, total_time_minutes FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    const u = userRes.rows[0];
+    const today   = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const lastDay = u.last_activity_date ? u.last_activity_date.toISOString?.().slice(0, 10) || String(u.last_activity_date).slice(0, 10) : null;
+
+    let newStreak = u.streak_days || 0;
+    if (lastDay !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      newStreak = lastDay === yesterday ? newStreak + 1 : 1; // continue or reset
+    }
+
+    const newXP    = (u.xp || 0) + (xp_earned || 0);
+    const newLevel = Math.floor(newXP / 500) + 1; // every 500 XP = 1 level
+    const newTime  = (u.total_time_minutes || 0) + time_spent_minutes;
+
+    await pool.query(
+      `UPDATE users SET
+         streak_days         = $1,
+         last_activity_date  = $2,
+         xp                  = $3,
+         level               = $4,
+         total_time_minutes  = $5
+       WHERE id = $6`,
+      [newStreak, today, newXP, newLevel, newTime, req.user.id]
+    );
+
+    res.json({
+      message: 'Progress updated',
+      progress: rows[0],
+      streak: newStreak,
+      xp: newXP,
+      level: newLevel,
+    });
   } catch (err) {
     next(err);
   }

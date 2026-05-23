@@ -51,6 +51,8 @@ app.use('/api/enrollments',  require('./routes/enrollments'));
 app.use('/api/instructor',   require('./routes/instructor'));
 app.use('/api/analytics',    require('./routes/analytics'));
 app.use('/api/gamification', require('./routes/gamification'));
+app.use('/api/bookmarks',    require('./routes/bookmarks'));
+app.use('/api/forums',       require('./routes/forums'));
 app.use('/api/admin',        require('./routes/admin'));
 app.use('/api/contact',      require('./routes/contact'));
 app.use('/api/chat',         require('./routes/chat'));

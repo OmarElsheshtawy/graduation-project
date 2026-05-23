@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { COURSES, loadProgress, saveProgress, getCourseById } from '../data/courseData'
 import { useTheme } from './ThemeContext'
+import api from '../services/api'
 
 // ── Exercise: Multiple Choice ──────────────────────────────────────────────
 function MultipleChoice({ exercise, onAnswer }) {
@@ -368,7 +369,7 @@ export default function LessonPlayer() {
     setWaitingNext(true)
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     setWaitingNext(false); setLastCorrect(null)
     if (exIdx + 1 >= totalEx || hearts === 0) {
       const prog = loadProgress(courseId)
@@ -376,7 +377,7 @@ export default function LessonPlayer() {
         prog.completedLessons.push(lessonId)
         prog.xp = (prog.xp || 0) + lesson.xp
         saveProgress(courseId, prog)
-        // Record daily activity for streak
+        // Record daily activity for streak (local backup)
         const streakData = JSON.parse(localStorage.getItem('lb_streak') || '{"streak":0,"lastDate":null}')
         const today = new Date().toDateString()
         if (streakData.lastDate !== today) {
@@ -384,6 +385,19 @@ export default function LessonPlayer() {
           const newStreak = streakData.lastDate === yesterday ? streakData.streak + 1 : 1
           localStorage.setItem('lb_streak', JSON.stringify({ streak: newStreak, lastDate: today }))
         }
+        // Sync progress to backend (silently — user may not be enrolled in DB)
+        try {
+          const courseObj = getCourseById(courseId)
+          if (courseObj) {
+            const totalLessons = courseObj.units?.reduce((a, u) => a + u.lessons.length, 0) || 1
+            const percentComplete = Math.round((prog.completedLessons.length / totalLessons) * 100)
+            await api.put(`/enrollments/progress/${courseId}`, {
+              percent_complete:  Math.min(percentComplete, 100),
+              xp_earned:         lesson.xp || 10,
+              time_spent_minutes: lesson.duration || 5,
+            })
+          }
+        } catch { /* not enrolled in DB — ok */ }
       }
       setPhase('complete')
     } else {

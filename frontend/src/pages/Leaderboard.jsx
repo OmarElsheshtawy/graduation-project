@@ -21,15 +21,16 @@ export default function Leaderboard() {
 
   useEffect(() => {
     setLoading(true)
-    api.get('/analytics/leaderboard')
+    api.get('/gamification/leaderboard', { params: { period, limit: 20 } })
       .then(({ data }) => {
-        const ranked = data.leaderboard.map((u, i) => ({
-          rank:    i + 1,
+        const ranked = (data.leaderboard || []).map((u, i) => ({
+          rank:    Number(u.rank) || i + 1,
           name:    u.name,
           avatar:  u.name?.charAt(0).toUpperCase() || '?',
-          xp:      u.xp,
-          courses: u.enrolled_courses,
-          streak:  0, // not stored in DB yet
+          xp:      u.xp || 0,
+          courses: u.courses_completed || 0,
+          streak:  u.streak_days || 0,
+          level:   u.level || 1,
         }))
         setLeaders(ranked)
         if (user) {

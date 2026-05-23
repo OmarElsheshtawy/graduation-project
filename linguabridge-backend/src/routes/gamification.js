@@ -4,7 +4,7 @@ const pool   = require('../config/db');
 const { protect, authorize } = require('../middleware/auth');
 
 // ── GET /api/gamification/leaderboard ────────────────────────────────────────
-router.get('/leaderboard', protect, async (req, res, next) => {
+router.get('/leaderboard', async (req, res, next) => {
   try {
     const { period = 'weekly', limit = 20 } = req.query;
 

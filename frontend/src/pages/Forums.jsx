@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from './ThemeContext'
+import api from '../services/api'
 
 const CATEGORIES = [
   { id: 'grammar',    icon: '📝', label: 'Grammar Help',      color: '#2563EB', desc: 'Ask grammar questions' },
@@ -26,6 +27,8 @@ export default function Forums() {
   const [showNewPost, setShowNewPost] = useState(false)
   const [newPost,     setNewPost]     = useState({ title: '', category: 'grammar', content: '' })
   const [posts,       setPosts]       = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [submitting,  setSubmitting]  = useState(false)
   const [search,      setSearch]      = useState('')
   const [toast,       setToast]       = useState(null)
 
@@ -45,28 +48,53 @@ export default function Forums() {
 
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
-  const filteredPosts = posts.filter(p =>
-    (activecat === 'all' || p.category === activecat) &&
-    (p.title.toLowerCase().includes(search.toLowerCase()) || p.preview.toLowerCase().includes(search.toLowerCase()))
-  )
+  // ── Fetch posts from API ──────────────────────────────────────────────────
+  const fetchPosts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = {}
+      if (activecat !== 'all') params.category = activecat
+      if (search) params.search = search
+      const { data } = await api.get('/forums', { params })
+      // Normalise API fields to what the template expects
+      setPosts(data.posts.map(p => ({
+        ...p,
+        author:  p.author_name,
+        avatar:  p.author_name?.charAt(0).toUpperCase() || '?',
+        preview: p.content?.slice(0, 120) || '',
+        replies: p.reply_count || 0,
+        time:    new Date(p.created_at).toLocaleDateString(),
+        solved:  false,
+      })))
+    } catch { /* silently fail — show empty state */ }
+    finally { setLoading(false) }
+  }, [activecat, search])
 
-  const handleSubmitPost = () => {
+  useEffect(() => { fetchPosts() }, [fetchPosts])
+
+  const handleSubmitPost = async () => {
     if (!newPost.title.trim() || !newPost.content.trim()) return
-    const post = {
-      id: Date.now(), category: newPost.category,
-      title: newPost.title, author: user?.name || 'You',
-      avatar: user?.name?.charAt(0) || 'Y', time: 'Just now',
-      replies: 0, likes: 0, solved: false, preview: newPost.content,
-    }
-    setPosts(prev => [post, ...prev])
-    setNewPost({ title: '', category: 'grammar', content: '' })
-    setShowNewPost(false)
-    setToast('✅ Post published successfully!')
-    setTimeout(() => setToast(null), 3000)
+    if (!user?.id) { setToast('❌ Please sign in to post'); setTimeout(() => setToast(null), 3000); return }
+    setSubmitting(true)
+    try {
+      await api.post('/forums', newPost)
+      setNewPost({ title: '', category: 'grammar', content: '' })
+      setShowNewPost(false)
+      setToast('✅ Post published successfully!')
+      setTimeout(() => setToast(null), 3000)
+      fetchPosts()
+    } catch (err) {
+      setToast('❌ ' + (err.response?.data?.message || 'Failed to post'))
+      setTimeout(() => setToast(null), 3000)
+    } finally { setSubmitting(false) }
   }
 
-  const toggleLike = (postId) => {
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p))
+  const toggleLike = async (postId, e) => {
+    e.stopPropagation()
+    try {
+      const { data } = await api.patch(`/forums/${postId}/like`)
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: data.likes } : p))
+    } catch { /* ignore */ }
   }
 
   return (
@@ -137,12 +165,14 @@ export default function Forums() {
 
               {/* Posts */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {filteredPosts.length === 0 ? (
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '3rem', color: textFaint }}>⏳ Loading posts...</div>
+                ) : posts.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '3rem', background: cardBg, borderRadius: 16, color: textFaint, border: `1px solid ${border}` }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: 10 }}>🔍</div>
                     <p>No posts found. Be the first to post!</p>
                   </div>
-                ) : filteredPosts.map(post => {
+                ) : posts.map(post => {
                   const cat = CATEGORIES.find(c => c.id === post.category)
                   return (
                     <div key={post.id} style={{ background: cardBg, borderRadius: 16, padding: '16px 18px', border: `1px solid ${border}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', transition: 'all 0.2s', cursor: 'pointer' }}
@@ -152,17 +182,18 @@ export default function Forums() {
                         <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#2563EB,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.85rem', flexShrink: 0 }}>{post.avatar}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                            <span style={{ background: cat?.color + '18', color: cat?.color, fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>{cat?.icon} {cat?.label}</span>
-                            {post.solved && <span style={{ background: '#DCFCE7', color: '#166534', fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>✓ Solved</span>}
+                            <span style={{ background: (cat?.color || '#6B7280') + '18', color: cat?.color || '#6B7280', fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>{cat?.icon} {cat?.label}</span>
+                            {post.is_pinned && <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '0.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6 }}>📌 Pinned</span>}
                           </div>
                           <h3 style={{ fontWeight: 700, color: text, fontSize: '0.9rem', margin: '0 0 5px', lineHeight: 1.4 }}>{post.title}</h3>
                           <p style={{ color: textMuted, fontSize: '0.8rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.preview}</p>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10, fontSize: '0.72rem', color: textFaint }}>
                             <span>{post.author} · {post.time}</span>
-                            <button onClick={(e) => { e.stopPropagation(); toggleLike(post.id) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textFaint, fontFamily: 'inherit', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <button onClick={(e) => toggleLike(post.id, e)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textFaint, fontFamily: 'inherit', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: 3 }}>
                               ❤️ {post.likes}
                             </button>
                             <span>💬 {post.replies} replies</span>
+                            <span>👁 {post.views}</span>
                           </div>
                         </div>
                       </div>
@@ -303,9 +334,9 @@ export default function Forums() {
                   style={{ flex: 1, padding: '11px', borderRadius: 10, background: bg, color: textMuted, border: `1.5px solid ${borderFm}`, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Cancel
                 </button>
-                <button onClick={handleSubmitPost}
-                  style={{ flex: 1, padding: '11px', borderRadius: 10, background: '#2563EB', color: 'white', border: 'none', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}>
-                  Publish Post
+                <button onClick={handleSubmitPost} disabled={submitting}
+                  style={{ flex: 1, padding: '11px', borderRadius: 10, background: '#2563EB', color: 'white', border: 'none', fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', opacity: submitting ? 0.7 : 1 }}>
+                  {submitting ? 'Publishing...' : 'Publish Post'}
                 </button>
               </div>
             </div>
